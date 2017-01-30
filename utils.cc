@@ -144,7 +144,7 @@ void usage ( void )
    fprintf ( stdout, " Standard (Mandatory):\n" );
    fprintf ( stdout, "  -a, --alphabet              <str>     'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
    fprintf ( stdout, "  -i, --input-file            <str>     MultiFASTA input filename.\n" );
-   fprintf ( stdout, "  -o, --output-file           <str>     Output filename with rotated sequences.\n" );    
+   fprintf ( stdout, "  -o, --output-file           <str>     Output filename with maximal inexact matches.\n" );    
    fprintf ( stdout, "  -q, --q-size                <int>     Minimum q-gram length.\n" ); 
    fprintf ( stdout, "  -l, --min-seq-length        <int>     Minimum length of match.\n" );   
    fprintf ( stdout, "  -k, --min-error-size        <dbl>     Minimum error size between matches.\n" );
