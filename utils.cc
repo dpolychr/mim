@@ -161,7 +161,7 @@ void usage ( void )
    fprintf ( stdout, "  -k, --max-error-size        		<dbl>     Maximum error size between matches.\n" );
    fprintf ( stdout, " Optional:\n" );
    fprintf ( stdout, "  -M, --longest-increasing-matches	<dbl>     Choose 1 to return all longest increasing maximal inexact matches\n"
-                     "                                                    or 0 to return all maximal inexact matches. Default: 0\n" );
+                     "                                                  or 0 to return all maximal inexact matches. Default: 0\n" );
    fprintf ( stdout, " Number of threads:\n" ); 
    fprintf ( stdout, "  -T, --threads              		<int>     Number of threads to use. Default: 1. \n" );
  }
