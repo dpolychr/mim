@@ -137,6 +137,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 	return 0;
 }
 
+
 int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw )
 {
 

@@ -46,7 +46,7 @@ struct TSwitch
    char               * input_filename;
    char               * output_filename;
    unsigned int         matrix;
-   int 			T;
+   int 			T, M;
    unsigned int         l, q, k;
  };
 
@@ -80,3 +80,4 @@ int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char
 int extend( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw );
 int editDistanceMyers( unsigned char * xInput, unsigned char * yInput );
 int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mims );
+int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc> * mims );
