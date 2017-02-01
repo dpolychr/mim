@@ -34,7 +34,7 @@ static struct option long_options[] =
    { "output-file",             	required_argument, NULL, 'o' },
    { "min-seq-length",          	required_argument, NULL, 'l' },
    { "q-length",                	required_argument, NULL, 'q' },
-   { "min-error-size",          	required_argument, NULL, 'k' },
+   { "max-error-size",          	required_argument, NULL, 'k' },
    { "threads", 			optional_argument, NULL, 'T' },
    { "longest-increasing-matches", 	optional_argument, NULL, 'M' },
    { "help",                    	no_argument,       NULL, 'h' },
@@ -155,13 +155,13 @@ void usage ( void )
    fprintf ( stdout, " Standard (Mandatory):\n" );
    fprintf ( stdout, "  -a, --alphabet              		<str>     'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
    fprintf ( stdout, "  -i, --input-file           		<str>     MultiFASTA input filename.\n" );
-   fprintf ( stdout, "  -o, --output-file           		<str>     Output filename with rotated sequences.\n" );    
-   fprintf ( stdout, "  -q, --q-size                		<int>     Minimum q-gram length.\n" ); 
+   fprintf ( stdout, "  -o, --output-file           		<str>     Output filename with maximal inexact matches.\n" );    
+   fprintf ( stdout, "  -q, --q-size                		<int>     Minimum length of q-gram.\n" ); 
    fprintf ( stdout, "  -l, --min-seq-length        		<int>     Minimum length of match.\n" );   
-   fprintf ( stdout, "  -k, --min-error-size        		<dbl>     Minimum error size between matches.\n" );
+   fprintf ( stdout, "  -k, --max-error-size        		<dbl>     Maximum error size between matches.\n" );
    fprintf ( stdout, " Optional:\n" );
    fprintf ( stdout, "  -M, --longest-increasing-matches	<dbl>     Choose 1 to return all longest increasing maximal inexact matches\n"
-                     "                                                  or 0 to return all maximal inexact matches. Default: 0\n" );
+                     "                                                    or 0 to return all maximal inexact matches. Default: 0\n" );
    fprintf ( stdout, " Number of threads:\n" ); 
    fprintf ( stdout, "  -T, --threads              		<int>     Number of threads to use. Default: 1. \n" );
  }
