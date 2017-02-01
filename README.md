@@ -18,7 +18,7 @@ x and y.
   -M, --longest-increasing-matches <dbl>     Choose 1 to return all longest increasing maximal inexact matches\n"
                                              or 0 to return all maximal inexact matches. Default: 0\n" );
  Number of threads: 
-  -T, --threads              		    <int>     Number of threads to use. Default: 1. \n" );
+  -T, --threads                    <int>     Number of threads to use. Default: 1. \n" );
 ```
 
 <b>License</b>: GNU GPLv3 License; Copyright (C) 2017 Lorraine A.K. Ayad, Chang Liu, and Solon P. Pissis.
