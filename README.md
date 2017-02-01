@@ -16,7 +16,7 @@ x and y.
   -k, --min-error-size        		<dbl>     Minimum error size between matches.
  Optional:
   -M, --longest-increasing-matches	<dbl>     Choose 1 to return all longest increasing maximal inexact matches\n"
-						  or 0 to return all maximal inexact matches. Default: 0\n" );
+                                                  or 0 to return all maximal inexact matches. Default: 0\n" );
  Number of threads: 
   -T, --threads              		<int>     Number of threads to use. Default: 1. \n" );
 ```
