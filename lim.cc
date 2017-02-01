@@ -1,21 +1,3 @@
-/**
-    MIM
-    Copyright (C) 2017 Lorraine A. K. Ayad, Chang Liu and Solon P. Pissis
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-**/
-
 #include <iostream>
 #include <cstdlib>
 #include <stdio.h>
@@ -31,11 +13,11 @@ using namespace std;
 
 bool ordering(MimOcc a, MimOcc b) 
 { 
-	if( a.startQuery == b.startQuery )
+	if( a.startRef == b.startRef )
 	{
-		return( a.startRef < b.startRef );
+		return( a.startQuery < b.startQuery );
 	}
-	else return (a.startQuery < b.startQuery); 
+	else return (a.startRef < b.startRef ); 
 }
 
 bool includesAll( vector<MimOcc> * a,  vector<MimOcc> * b )
@@ -81,7 +63,7 @@ int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc
    		vector< vector<MimOcc> *> * tempTable = new vector<vector<MimOcc> *>;
    		for (int j=0; j<table->size(); j++)
    		{
-    			if ( table->at(j)->at( table->at(j)->size() - 1).startRef <= mims->at(k).startRef )
+    			if ( table->at(j)->at( table->at(j)->size() - 1).startRef < mims->at(k).startRef && table->at(j)->at( table->at(j)->size() - 1).endQuery < mims->at(k).startQuery && table->at(j)->at( table->at(j)->size() - 1).endRef < mims->at(k).startRef )
     			{
 				used = true;
      				vector<MimOcc> * temp = new vector<MimOcc>();
@@ -108,8 +90,6 @@ int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc
 			table->push_back( temp );
 		}
   	}
-
-	vector < MimOcc > * toDelete = new vector < MimOcc >();
 
   	for (int i = 0; i<table->size(); i++)
   	{
@@ -140,7 +120,4 @@ int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc
 
 return 0;
 }
-
-
-			
 

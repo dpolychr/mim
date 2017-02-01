@@ -233,6 +233,8 @@ int main(int argc, char **argv)
 
 	find_maximal_inexact_matches( sw , seq[0], seq[1], q_grams, mims );
 
+	delete( q_grams );
+
 	fprintf ( stderr, " Preparing the output\n" );
 
 	if ( ! ( out_fd = fopen ( output_filename, "w") ) )
@@ -250,24 +252,38 @@ int main(int argc, char **argv)
 				fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", mims->at(i).startRef, " ", mims->at(i).endRef, " ", mims->at(i).startQuery, " ", mims->at(i).endQuery," ",  mims->at(i).error );
 			}		
 		}
+
+		delete( mims );
 	}
 	else
 	{
 		vector< vector <MimOcc>* > * lims = new vector< vector<MimOcc> *>();
 
-		longest_increasing_matches( lims, mims );
+		vector<MimOcc> * mims_del = new vector<MimOcc>;
+
+		for(int i=0; i<mims->size(); i++ )
+		{
+			if ( mims->at(i).endQuery - mims->at(i).startQuery >= sw . l && mims->at(i).endRef - mims->at(i).startRef >= sw . l )
+			{	
+				mims_del->push_back( mims->at(i) );
+			}
+		}
+		
+		delete( mims );
+
+	
+		longest_increasing_matches( lims, mims_del );
 
 		for ( int i = 0; i < lims->size(); i++ )
 		{
 			for(int j=0; j< lims->at(i)->size(); j++ )
 			{ 
-				if ( lims->at(i)->at(j).endQuery - lims->at(i)->at(j).startQuery >= sw . l || lims->at(i)->at(j).endRef - lims->at(i)->at(j).startRef >= sw . l )
-				{
-					fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", lims->at(i)->at(j).startRef, " ", lims->at(i)->at(j).endRef, " ", lims->at(i)->at(j).startQuery, " ", lims->at(i)->at(j).endQuery," ",  lims->at(i)->at(j).error );
-				}
+				fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", lims->at(i)->at(j).startRef, " ", lims->at(i)->at(j).endRef, " ", lims->at(i)->at(j).startQuery, " ", lims->at(i)->at(j).endQuery," ",  lims->at(i)->at(j).error );
 			}	
 		fprintf(out_fd, "\n");	
 		}
+
+		delete( mims_del );
 	}
 
 		
@@ -294,8 +310,6 @@ int main(int argc, char **argv)
         free ( sw . input_filename );
         free ( sw . output_filename );
         free ( sw . alphabet );
-	delete( q_grams );
-	delete( mims );
-
-	return ( 0 );
+	
+return ( 0 );
 }
