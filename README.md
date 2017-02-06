@@ -8,18 +8,18 @@ x and y.
 ```
  MIM <options>
  Standard (Mandatory):
-  -a, --alphabet		<str>     'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.
-  -i, --input-file		<str>     MultiFASTA input filename.
-  -o, --output-file		<str>     Output filename with maximal inexact matches.
-  -q, --q-size			<int>     Minimum length of q-gram.
-  -l, --min-seq-length		<int>     Minimum length of match.
-  -k, --max-error-size		<dbl>     Maximum error size between matches.
+  -a, --alphabet		<str>		'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.
+  -i, --input-file		<str>		MultiFASTA input filename.
+  -o, --output-file		<str>		Output filename with maximal inexact matches.
+  -q, --q-size			<int>		Minimum length of q-gram.
+  -l, --min-seq-length		<int>		Minimum length of match.
+  -k, --max-error-size		<dbl>		Maximum error size between matches.
  Optional:
-  -M, --longest-inc-matches 	<dbl>     Choose 1 to return all longest increasing maximal inexact matches
-					  or 0 to return all maximal inexact matches. Default: 0.
-  -c, --min-cluster-size	<dbl>     Minimum number of MIM in each cluster when M=1. Default: 5.
+  -M, --longest-inc-matches	<dbl>		Choose 1 to return all longest increasing maximal inexact matches
+  						or 0 to return all maximal inexact matches. Default: 0.
+  -c, --min-cluster-size	<dbl>		Minimum number of MIM in each cluster when M=1. Default: 5.
  Number of threads: 
-  -T, --threads                 <int>     Number of threads to use. Default: 1.
+  -T, --threads			<int>		Number of threads to use. Default: 1.
 ```
 
 <b>License</b>: GNU GPLv3 License; Copyright (C) 2017 Lorraine A.K. Ayad, Chang Liu, and Solon P. Pissis.
