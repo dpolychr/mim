@@ -13,7 +13,7 @@ using namespace std;
 
 bool ordering(MimOcc a, MimOcc b) 
 { 
-	if( a.startRef == b.startRef )
+	if( a.startRef == b.startRef)
 	{
 		return( a.startQuery < b.startQuery );
 	}
@@ -57,10 +57,13 @@ int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc
 	
 	vector<vector<MimOcc> *> * table = new vector <vector<MimOcc> *>;
 
+	int j = 0;
+
 	bool used = false;
   	for (int k = 0; k <mims->size(); k++)
  	{
    		vector< vector<MimOcc> *> * tempTable = new vector<vector<MimOcc> *>;
+
    		for (int j=0; j<table->size(); j++)
    		{
     			if ( table->at(j)->at( table->at(j)->size() - 1).startRef < mims->at(k).startRef && table->at(j)->at( table->at(j)->size() - 1).endQuery < mims->at(k).startQuery && table->at(j)->at( table->at(j)->size() - 1).endRef < mims->at(k).startRef )
@@ -72,7 +75,7 @@ int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc
      					temp->push_back(table->at(j)->at(i));
 				}
      				temp->push_back(mims->at(k));
-     				tempTable->push_back(temp);
+				tempTable->push_back(temp);
     			}
 			else used = false;
    		}
@@ -82,8 +85,9 @@ int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc
 			table->push_back( tempTable->at(j) );
 		}
 
-   		vector <MimOcc> * temp = new vector <MimOcc >();
-
+   		delete( tempTable );
+		vector <MimOcc> * temp = new vector <MimOcc >();
+		
 		if( used == false )
 		{
    			temp->push_back(mims->at(k));

@@ -47,7 +47,7 @@ struct TSwitch
    char               * output_filename;
    unsigned int         matrix;
    int 			T, M;
-   unsigned int         l, q, k;
+   unsigned int         l, k, c;
  };
 
 struct QGramOcc
@@ -75,7 +75,7 @@ double gettime ( void );
 void usage ( void );
 
 int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw  );
-int find_maximal_exact_matches( int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams );
+int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams );
 int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mnms );
 int extend( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw );
 int editDistanceMyers( unsigned char * xInput, unsigned char * yInput );

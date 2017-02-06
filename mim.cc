@@ -67,12 +67,6 @@ int main(int argc, char **argv)
                         return ( 1 );
                 }
 
-		if ( sw . q < 2 )
-		{
-			fprintf ( stderr, " Error: The q-gram length is too small.\n" );
-			return ( 1 );	
-		}
-
 		if ( sw . k > sw . l )
 		{
 			fprintf ( stderr, " Error: The number of errors cannot be larger than the length of the match.\n" );
@@ -83,6 +77,16 @@ int main(int argc, char **argv)
 		if ( input_filename == NULL )
 		{
 			fprintf ( stderr, " Error: Cannot open file for input!\n" );
+			return ( 1 );
+		}
+		if ( sw . M != 0 && sw . M != 1 )
+		{
+			fprintf ( stderr, " Error: Invalid value for M, choose 0 for all MIM or 1 for all longest increasing MIM!\n" );
+			return ( 1 );
+		}
+		if ( sw . c <= 0 )
+		{
+			fprintf ( stderr, " Error: c must be greater than 0!\n" );
 			return ( 1 );
 		}
 		output_filename         = sw . output_filename;
@@ -210,6 +214,8 @@ int main(int argc, char **argv)
 		return ( 1 );	
 	}
 
+	unsigned int q_gram_size = sw . l / sw . k + 1;
+
 	ref = fopen ( "ref.fasta", "w");
 	fprintf( ref, ">%s\n%s\n", seq_id[0], seq[0] );
 	fclose ( ref );
@@ -221,13 +227,7 @@ int main(int argc, char **argv)
 
 	vector<QGramOcc> * q_grams = new vector<QGramOcc>;
 
-	find_maximal_exact_matches( sw . q , seq[0], seq[1] , q_grams );
-
-	if( q_grams->size() == 0 )
-	{
-		fprintf( stderr, " Error: The q-gram size is too large!\n");
-		return ( 1 );	
-	}
+	find_maximal_exact_matches( q_gram_size , seq[0], seq[1] , q_grams );
 
 	vector<MimOcc> * mims = new vector<MimOcc>;
 
@@ -276,11 +276,15 @@ int main(int argc, char **argv)
 
 		for ( int i = 0; i < lims->size(); i++ )
 		{
-			for(int j=0; j< lims->at(i)->size(); j++ )
-			{ 
-				fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", lims->at(i)->at(j).startRef, " ", lims->at(i)->at(j).endRef, " ", lims->at(i)->at(j).startQuery, " ", lims->at(i)->at(j).endQuery," ",  lims->at(i)->at(j).error );
+			if( lims->at(i)->size() >= sw . c )
+			{
+				for(int j=0; j< lims->at(i)->size(); j++ )
+				{ 
+					fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", lims->at(i)->at(j).startRef, " ", lims->at(i)->at(j).endRef, " ", lims->at(i)->at(j).startQuery, " ", lims->at(i)->at(j).endQuery," ",  lims->at(i)->at(j).error );
+				}
+			fprintf(out_fd, "\n");
 			}	
-		fprintf(out_fd, "\n");	
+			else continue;	
 		}
 
 		delete( mims_del );

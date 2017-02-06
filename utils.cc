@@ -33,10 +33,10 @@ static struct option long_options[] =
    { "seqs-file",              		required_argument, NULL, 'i' },
    { "output-file",             	required_argument, NULL, 'o' },
    { "min-seq-length",          	required_argument, NULL, 'l' },
-   { "q-length",                	required_argument, NULL, 'q' },
    { "max-error-size",          	required_argument, NULL, 'k' },
    { "threads", 			optional_argument, NULL, 'T' },
-   { "longest-increasing-matches", 	optional_argument, NULL, 'M' },
+   { "longest-inc-matches", 	        optional_argument, NULL, 'M' },
+   { "min-cluster-size",                optional_argument, NULL, 'c' },
    { "help",                    	no_argument,       NULL, 'h' },
    { NULL,                      	0,                 NULL,  0  }
  };
@@ -58,13 +58,13 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
    sw -> input_filename                 = NULL;
    sw -> output_filename                = NULL;
    sw -> l                              = 10;
-   sw -> q                              = 5;
    sw -> k				= 1;
    sw -> M				= 0;
+   sw -> c				= 5;
    sw -> T                              = 1;
    args = 0;
 
-   while ( ( opt = getopt_long ( argc, argv, "a:i:o:l:q:k:T:M:h", long_options, &oi ) ) != -1 ) 
+   while ( ( opt = getopt_long ( argc, argv, "a:i:o:l:k:T:M:c:h", long_options, &oi ) ) != -1 ) 
     {
 
       switch ( opt )
@@ -96,15 +96,6 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
            sw -> l = val;
            break;
 
-          case 'q':
-           val = strtol ( optarg, &ep, 10 );
-           if ( optarg == ep )
-            {
-              return ( 0 );
-            }
-           sw -> q = val;
-           break;
-
 	case 'k':
            val = strtol ( optarg, &ep, 10 );
            if ( optarg == ep )
@@ -121,6 +112,15 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
               return ( 0 );
             }
            sw -> M = val;
+           break;
+
+	case 'c':
+           val = strtol ( optarg, &ep, 10 );
+           if ( optarg == ep )
+            {
+              return ( 0 );
+            }
+           sw -> c = val;
            break;
 	
 	 case 'T':
@@ -153,17 +153,17 @@ void usage ( void )
  {
    fprintf ( stdout, " Usage: MIM <options>\n" );
    fprintf ( stdout, " Standard (Mandatory):\n" );
-   fprintf ( stdout, "  -a, --alphabet              		<str>     'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
-   fprintf ( stdout, "  -i, --input-file           		<str>     MultiFASTA input filename.\n" );
-   fprintf ( stdout, "  -o, --output-file           		<str>     Output filename with maximal inexact matches.\n" );    
-   fprintf ( stdout, "  -q, --q-size                		<int>     Minimum length of q-gram.\n" ); 
-   fprintf ( stdout, "  -l, --min-seq-length        		<int>     Minimum length of match.\n" );   
-   fprintf ( stdout, "  -k, --max-error-size        		<dbl>     Maximum error size between matches.\n" );
+   fprintf ( stdout, "  -a, --alphabet                  <str>     'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
+   fprintf ( stdout, "  -i, --input-file           	<str>     MultiFASTA input filename.\n" );
+   fprintf ( stdout, "  -o, --output-file           	<str>     Output filename with maximal inexact matches.\n" );    
+   fprintf ( stdout, "  -l, --min-seq-length        	<int>     Minimum length of match.\n" );   
+   fprintf ( stdout, "  -k, --max-error-size        	<dbl>     Maximum error size between matches.\n" );
    fprintf ( stdout, " Optional:\n" );
-   fprintf ( stdout, "  -M, --longest-increasing-matches	<dbl>     Choose 1 to return all longest increasing maximal inexact matches\n"
-                     "                                                  or 0 to return all maximal inexact matches. Default: 0\n" );
+   fprintf ( stdout, "  -M, --longest-inc-matches	<dbl>     Choose 1 to return all longest increasing maximal inexact matches\n"
+                     "						  or 0 to return all maximal inexact matches. Default: 0.\n" );
+   fprintf ( stdout, "  -c, --min-cluster-size		<dbl>     Minimum number of MIM in each cluster when M=1. Default: 5.\n");
    fprintf ( stdout, " Number of threads:\n" ); 
-   fprintf ( stdout, "  -T, --threads              		<int>     Number of threads to use. Default: 1. \n" );
+   fprintf ( stdout, "  -T, --threads              	<int>     Number of threads to use. Default: 1. \n" );
  }
 
 double gettime( void )
