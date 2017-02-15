@@ -47,7 +47,7 @@ struct TSwitch
    char               * output_filename;
    unsigned int         matrix;
    int 			T, M;
-   unsigned int         l, k, c;
+   unsigned int         l, k, c, r;
  };
 
 struct QGramOcc
@@ -81,3 +81,4 @@ int extend( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_s
 int editDistanceMyers( unsigned char * xInput, unsigned char * yInput );
 int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mims );
 int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc> * mims );
+unsigned int rev_compliment( unsigned char * str, unsigned char * str2, int iLen );

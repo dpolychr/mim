@@ -67,9 +67,16 @@ int main(int argc, char **argv)
                         return ( 1 );
                 }
 
-		if ( sw . k > sw . l )
+		if ( ! strcmp ( "PROT", sw . alphabet ) && sw . r == 1 )
+		{ 
+			
+                        fprintf ( stderr, " Error: Can only work out reverse compliment matches for DNA alphabet!\n" );
+                        return ( 1 );
+                }
+
+		if ( sw . k >= sw . l )
 		{
-			fprintf ( stderr, " Error: The number of errors cannot be larger than the length of the match.\n" );
+			fprintf ( stderr, " Error: The number of errors must be smaller than the length of the match.\n" );
 			return ( 1 );	
 		}
 
@@ -226,12 +233,27 @@ int main(int argc, char **argv)
 	fprintf ( stderr, " Finding all maximal inexact matches \n" );
 
 	vector<QGramOcc> * q_grams = new vector<QGramOcc>;
-
-	find_maximal_exact_matches( q_gram_size , seq[0], seq[1] , q_grams );
-
 	vector<MimOcc> * mims = new vector<MimOcc>;
 
-	find_maximal_inexact_matches( sw , seq[0], seq[1], q_grams, mims );
+	if( sw . r == 1 )
+	{
+		unsigned char * rc_seq = ( unsigned char * ) calloc ( ( strlen( ( char* ) seq[1] ) + 1 ) , sizeof( unsigned char ) );
+			
+		rev_compliment( seq[1], rc_seq , strlen( ( char* ) seq[1] ) - 1 );
+		rc_seq[  strlen( ( char* ) seq[1] ) ] = '\0';
+
+		find_maximal_exact_matches( q_gram_size , seq[0], rc_seq , q_grams );
+		find_maximal_inexact_matches( sw , seq[0], rc_seq, q_grams, mims );
+
+		free( rc_seq );
+
+
+	}
+	else 
+	{
+		find_maximal_exact_matches( q_gram_size , seq[0], seq[1] , q_grams );
+		find_maximal_inexact_matches( sw , seq[0], seq[1], q_grams, mims );
+	}
 
 	delete( q_grams );
 
@@ -315,5 +337,25 @@ int main(int argc, char **argv)
         free ( sw . output_filename );
         free ( sw . alphabet );
 	
-return ( 0 );
+return 1;
+}
+
+unsigned int rev_compliment( unsigned char * str, unsigned char * str2, int len )
+{
+	int i=0;
+	while ( len >= 0 )
+	{
+		if ( str[len] == 'A' )
+			str2[i++] = 'T';
+		else if( str[len] == 'C')
+			str2[i++] = 'G';
+		else if( str[len] == 'G')
+			str2[i++] = 'C';
+		else if( str[len] == 'T')
+			str2[i++] = 'A';
+		else if( str[len] == 'N')
+			str2[i++] = 'N';
+		len--;
+	}
+return 1;
 }

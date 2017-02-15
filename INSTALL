@@ -16,4 +16,4 @@ Basic Instructions
 After compilation the binary `mnm' will be created in the working 
 directory, e.g. you may call it from this directory via
 
- S ./mnm -h
+ S ./mim -h

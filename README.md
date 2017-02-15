@@ -13,11 +13,12 @@ x and y.
   -o, --output-file            <str>      Output filename with maximal inexact matches.
   -q, --q-size                 <int>      Minimum length of q-gram.
   -l, --min-seq-length         <int>      Minimum length of match.
-  -k, --max-error-size         <dbl>      Maximum error size between matches.
+  -k, --max-error-size         <int>      Maximum error size between matches.
  Optional:
-  -M, --longest-inc-matches    <dbl>      Choose 1 to return all longest increasing maximal inexact matches
+  -M, --longest-inc-matches    <int>      Choose 1 to return all longest increasing maximal inexact matches
                                           or 0 to return all maximal inexact matches. Default: 0.
-  -c, --min-cluster-size       <dbl>      Minimum number of MIM in each cluster when M=1. Default: 5.
+  -c, --min-cluster-size       <int>      Minimum number of MIM in each cluster when M=1. Default: 5.
+  -r, --rev-compliment         <int>      Choose 1 to compute reverse compliment matches and 0 otherwise. Default: 0.
  Number of threads: 
   -T, --threads                <int>      Number of threads to use. Default: 1.
 ```
