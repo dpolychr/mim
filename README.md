@@ -9,7 +9,8 @@ x and y.
  MIM <options>
  Standard (Mandatory):
   -a, --alphabet               <str>      'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.
-  -i, --input-file             <str>      MultiFASTA input filename.
+  -r, --input-file             <str>      FASTA reference filename.
+  -q, --input-file             <str>      FASTA query filename.
   -o, --output-file            <str>      Output filename with maximal inexact matches.
   -l, --min-seq-length         <int>      Minimum length of match.
   -k, --max-error-size         <int>      Maximum error size between matches.
