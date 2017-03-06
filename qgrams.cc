@@ -24,6 +24,33 @@
  *  file 'LICENSE', which is part of this source code package.       *
  * ================================================================= */
 
+
+/* ================================================================= *
+ *  qgrams.cc : Main program                                         *
+ *                                                                   *
+ *  E-MEM: An efficient (MUMmer-like) tool to retrieve Maximum Exact *
+ *         Matches using hashing based algorithm                     *
+ *                                                                   *
+ *  Copyright (c) 2014, Nilesh Khiste                                *
+ *  All rights reserved                                              *
+ *                                                                   *
+ *  This program is free software: you can redistribute it and/or    *
+ *  modify it under the terms of the GNU General Public License as   *
+ *  published by the Free Software Foundation, either version 3 of   *
+ *  the License, or (at your option) any later version.              *
+ *                                                                   *
+ *  This program is distributed in the hope that it will be useful,  *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of   *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    *
+ *  GNU General Public License for more details.                     *
+ *                                                                   *
+ *  You should have received a copy of the GNU General Public        *
+ *  License along with this program.                                 *
+ *                                                                   *
+ *  This file is subject to the terms and conditions defined in the  *
+ *  file 'LICENSE', which is part of this source code package.       *
+ * ================================================================= */
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -40,13 +67,15 @@
 #include "boost/tokenizer.hpp"
 #include <sys/stat.h>
 #include "qgrams.h"
+#include "mim.h"
 #include "file.h"
 #include "qlist.h"
+
 
 using namespace std;
 using namespace boost;
 
-/*
+/* 
  * Function builds a kmer hash for a reference sequence.
  * Input: empty refHash
  * Output: populated refHash
@@ -55,14 +84,12 @@ void buildRefHash(Knode* &refHash, uint64_t totalBits, seqFileReadInfo &RefFile)
 {
     uint64_t j=0;
     uint64_t currKmerPos=0, currKmer=0;
-    int32_t offset=0;
+    int32_t offset=0; 
     int nextKmerPosition = commonData::minMemLen - commonData::kmerSize + 2;
-
     vector<mapObject>::iterator it;
-    it = upper_bound(RefFile.blockOfNs.begin(), RefFile.blockOfNs.end(), currKmerPos, mapObject());
+    it = upper_bound(RefFile.blockOfNs.begin(), RefFile.blockOfNs.end(), currKmerPos, mapObject()); 
     while (currKmerPos<=totalBits)
     {
-		//cout<<" curr kmer pos " <<currKmerPos<<" total bits "<<totalBits<<" datatype width "<<DATATYPE_WIDTH<<endl;
         if (currKmerPos + commonData::kmerSize - 2 > totalBits)
             break;
 
@@ -72,9 +99,8 @@ void buildRefHash(Knode* &refHash, uint64_t totalBits, seqFileReadInfo &RefFile)
         }
 
         offset = currKmerPos%DATATYPE_WIDTH;
-
-        j=currKmerPos/DATATYPE_WIDTH; // next loc in binReads
-
+        j=currKmerPos/DATATYPE_WIDTH; // next loc in binReads 
+        
         currKmer = RefFile.binReads[j];
         currKmer <<= offset;
 
@@ -83,21 +109,19 @@ void buildRefHash(Knode* &refHash, uint64_t totalBits, seqFileReadInfo &RefFile)
         else
             currKmer &= global_mask_left[commonData::kmerSize/2 - 1];
         /* Add kmer to the hash table */
-
         refHash->addKmerNode(currKmer, currKmerPos);
-
         currKmerPos+=nextKmerPosition; // Move L-K+2 bits = 50-28+1=23 char = 46 bits
     }
 }
 
-/*
- * Function extends the kmer match in left/right direction for
+/* 
+ * Function extends the kmer match in left/right direction for 
  * possible MEMs.
- * Input: currRPos : current position of matching reference Kmer
- * Input: currRPos : current position of matching query Kmer
- * Input: totalRBits : total number of bits in reference
- * Input: totalQBits : total number of bits in query
- * Input: name : reference sequence string for output
+ * Input: currRPos : current position of matching reference Kmer 
+ * Input: currRPos : current position of matching query Kmer 
+ * Input: totalRBits : total number of bits in reference  
+ * Input: totalQBits : total number of bits in query  
+ * Input: name : reference sequence string for output  
  *
  */
 void helperReportMem(uint64_t &currRPos, uint64_t &currQPos, uint64_t totalRBits, uint64_t totalQBits, queryList* &currQueryMEMs, std::unordered_multimap <uint64_t, uint64_t> &currMEMs, seqFileReadInfo &RefFile, seqFileReadInfo &QueryFile, tmpFilesInfo &arrayTmpFile, mapObject &RefNpos, mapObject &QueryNpos, uint32_t &revComplement)
@@ -114,11 +138,11 @@ void helperReportMem(uint64_t &currRPos, uint64_t &currQPos, uint64_t totalRBits
     int i=0,j=0,mismatch=0;
     uint64_t matchSize=0;
 
-    if (!(((QueryNpos.left==0x1)?true:QueryNpos.left<=lQue) && rQue<=QueryNpos.right))
-        QueryFile.getKmerLeftnRightBoundForNs(lQue, QueryNpos);
+    if (!(((QueryNpos.left==0x1)?true:QueryNpos.left<=lQue) && rQue<=QueryNpos.right)) 
+        QueryFile.getKmerLeftnRightBoundForNs(lQue, QueryNpos); 
 
-    if (!(((RefNpos.left==0x1)?true:RefNpos.left<=lRef) && rRef<=RefNpos.right))
-        RefFile.getKmerLeftnRightBoundForNs(lRef, RefNpos);
+    if (!(((RefNpos.left==0x1)?true:RefNpos.left<=lRef) && rRef<=RefNpos.right)) 
+        RefFile.getKmerLeftnRightBoundForNs(lRef, RefNpos); 
 
     if (RefNpos.right-((RefNpos.left==0x1)?0:RefNpos.left)+2 < static_cast<uint64_t>(commonData::minMemLen))
         return;
@@ -135,10 +159,10 @@ void helperReportMem(uint64_t &currRPos, uint64_t &currQPos, uint64_t totalRBits
             i=(lRef)/DATATYPE_WIDTH;
             offsetQ=(lQue)%DATATYPE_WIDTH;
             j=(lQue)/DATATYPE_WIDTH;
-
+       
             if (offsetR > offsetQ)
                 matchSize = offsetQ;
-            else
+            else 
                 matchSize = offsetR;
 
             if (!matchSize)
@@ -146,23 +170,23 @@ void helperReportMem(uint64_t &currRPos, uint64_t &currQPos, uint64_t totalRBits
 
             if ((QueryNpos.left!=0x1) && (matchSize > lQue-QueryNpos.left))
                 matchSize = lQue-QueryNpos.left;
-
+            
             if ((RefNpos.left!=0x1) && (matchSize > lRef-RefNpos.left))
                 matchSize = lRef-RefNpos.left;
-
+            
             if (!matchSize)
                 break;
 
-            /*
+            /* 
              * There will never be case with offset=0 and i=0 because
-             * i=0 happens only when lRef=0 and in that case we do not
+             * i=0 happens only when lRef=0 and in that case we do not 
              * enter this loop.
              */
             currR = RefFile.binReads[offsetR?i:i-1];
             currR >>= DATATYPE_WIDTH-offsetR;
             currQ = QueryFile.binReads[offsetQ?j:j-1];
             currQ >>= DATATYPE_WIDTH-offsetQ;
-        }
+        } 
 
         if((currR & global_mask_right[matchSize/2 - 1]) != (currQ &  global_mask_right[matchSize/2 - 1])) {
             if (matchSize==2)
@@ -176,23 +200,23 @@ void helperReportMem(uint64_t &currRPos, uint64_t &currQPos, uint64_t totalRBits
             lRef-=matchSize;
             lQue-=matchSize;
             if (mismatch) {
-                if (matchSize==2)
+                if (matchSize==2) 
                     break;
                 currR >>= matchSize;
                 currQ >>= matchSize;
             }
         }
     }
-
+    
     if (totalRBits-lRef+2 < static_cast<uint64_t>(commonData::minMemLen))
         return;
-
+    
     if (totalQBits-lQue+2 < static_cast<uint64_t>(commonData::minMemLen))
         return;
 
     //match towards right
     mismatch=0;
-    while ((rRef <= totalRBits) && (rQue <= totalQBits) && (rRef <= RefNpos.right) && (rQue <= QueryNpos.right))
+    while ((rRef <= totalRBits) && (rQue <= totalQBits) && (rRef <= RefNpos.right) && (rQue <= QueryNpos.right)) 
     {
         if (!mismatch)
         {
@@ -205,30 +229,30 @@ void helperReportMem(uint64_t &currRPos, uint64_t &currQPos, uint64_t totalRBits
                 matchSize = DATATYPE_WIDTH-offsetR;
             else
                 matchSize = DATATYPE_WIDTH-offsetQ;
-
+    
             if (rRef+matchSize > totalRBits)
                 matchSize = totalRBits-rRef;
-
+        
             if (rQue+matchSize > totalQBits)
                 matchSize = totalQBits-rQue;
 
             if (rQue+matchSize > QueryNpos.right)
                 matchSize = QueryNpos.right-rQue;
-
+            
             if (rRef+matchSize > RefNpos.right)
                 matchSize = RefNpos.right-rRef;
 
             if(!matchSize)
                 matchSize=2;
 
-
-
+            
+        
             currR = RefFile.binReads[i];
             currR <<= offsetR;
             currQ = QueryFile.binReads[j];
             currQ <<= offsetQ;
         }
-
+         
         if((currR & global_mask_left[matchSize/2 - 1]) != (currQ &  global_mask_left[matchSize/2 - 1])) {
             if (matchSize==2){
                 rRef-=2;
@@ -246,7 +270,7 @@ void helperReportMem(uint64_t &currRPos, uint64_t &currQPos, uint64_t totalRBits
             }
             if ((rRef == totalRBits) || (rQue == totalQBits))
                 break;
-
+            
             currR <<= matchSize;
             currQ <<= matchSize;
             rRef+=matchSize;
@@ -286,6 +310,7 @@ void reportMEM(Knode * &refHash, uint64_t totalBases, uint64_t totalQBases, seqF
 {
   uint64_t totalQBits = CHARS2BITS(totalQBases);
   uint32_t copyBits=0;
+
   #pragma omp parallel num_threads(commonData::numThreads)
   {
       queryList *currQueryMEMs = NULL;
@@ -296,7 +321,7 @@ void reportMEM(Knode * &refHash, uint64_t totalBases, uint64_t totalQBases, seqF
       int kmerWithNs=0;
       mapObject QueryNpos, RefNpos;
       vector<mapObject>::iterator it;
-      it = upper_bound(QueryFile.blockOfNs.begin(), QueryFile.blockOfNs.end(), 0, mapObject());
+      it = upper_bound(QueryFile.blockOfNs.begin(), QueryFile.blockOfNs.end(), 0, mapObject()); 
 
       #pragma omp single
       {
@@ -310,25 +335,25 @@ void reportMEM(Knode * &refHash, uint64_t totalBases, uint64_t totalQBases, seqF
       else
           copyBits=8; //4 characters
 
-      /* If copyBits more than 8, the for loop parallelisation will give
+      /* If copyBits more than 8, the for loop parallelisation will give 
        * incorrect results - miss some Mems
        */
-      if(commonData::numThreads > 1)
+      if(commonData::numThreads > 1)   
           copyBits=8; //4 characters
-      }
+      }   
+      
 
-
-      #pragma omp for
+      #pragma omp for 
       for (uint64_t currKmerPos=0; currKmerPos<=totalQBits; currKmerPos+=2)
       {
           if ((currKmerPos + commonData::kmerSize - 2) > totalQBits)
               continue;
-
+        
           if(QueryFile.checkKmerForNs(currKmerPos, it)){
               kmerWithNs=1;
           }
 
-          j=currKmerPos/DATATYPE_WIDTH;// current location in binReads
+          j=currKmerPos/DATATYPE_WIDTH;// current location in binReads 
           offset = currKmerPos%DATATYPE_WIDTH;
           if(first || !offset){
               currKmer = QueryFile.binReads[j];
@@ -349,10 +374,10 @@ void reportMEM(Knode * &refHash, uint64_t totalBases, uint64_t totalQBases, seqF
           }
           /* Find the K-mer in the refHash */
           uint64_t *dataPtr=NULL;
-          if (refHash->findKmer(currKmer & global_mask_left[commonData::kmerSize/2 - 1], dataPtr))
+          if (refHash->findKmer(currKmer & global_mask_left[commonData::kmerSize/2 - 1], dataPtr)) 
           {
               // We have a match
-              for (uint64_t n=1; n<=dataPtr[0]; n++) {
+              for (uint64_t n=1; n<=dataPtr[0]; n++) {   
                   // Check if MEM has already been discovered, if not proces it
                   if (!(currQueryMEMs->checkRedundantMEM(&currQueryMEMs, dataPtr[n], currKmerPos, CHARS2BITS(totalBases), currMEMs)))
                       helperReportMem(dataPtr[n], currKmerPos, CHARS2BITS(totalBases), CHARS2BITS(totalQBases), currQueryMEMs, currMEMs, RefFile, QueryFile, arrayTmpFile, RefNpos, QueryNpos, revComplement);
@@ -361,7 +386,7 @@ void reportMEM(Knode * &refHash, uint64_t totalBases, uint64_t totalQBases, seqF
       }
       currMEMs.clear();
       currQueryMEMs->ListFree(&currQueryMEMs);
-  }
+  }  
 }
 
 void processQuery(Knode * &refHash, seqFileReadInfo &RefFile, seqFileReadInfo &QueryFile, tmpFilesInfo &arrayTmpFile, uint32_t &revComplement)
@@ -385,9 +410,8 @@ void processReference(seqFileReadInfo &RefFile, seqFileReadInfo &QueryFile, tmpF
     uint64_t numberOfKmers=0,n=0;
     int hashTableSizeIndex=0;
     Knode *refHash;
-
+    
     numberOfKmers = ceil((RefFile.totalBases-commonData::kmerSize/2+1)/((commonData::minMemLen/2-commonData::kmerSize/2 + 1)) + 1);
-   
 
     /* Set the size of the hash table to the numberofKmers. */
     for (n=0; n<450; ++n)
@@ -408,46 +432,41 @@ void processReference(seqFileReadInfo &RefFile, seqFileReadInfo &QueryFile, tmpF
     /* Create the refHash for K-mers. */
     refHash = new Knode[Knode::currHashTabSize];
 
-    buildRefHash(refHash, CHARS2BITS( RefFile.totalBases - 1), RefFile);
+    buildRefHash(refHash, CHARS2BITS(RefFile.totalBases-1), RefFile);
 
     processQuery(refHash, RefFile, QueryFile, arrayTmpFile, revComplement);
 
-    delete [] refHash;
+    delete [] refHash; 
 }
 
 bool is_numeric(const string &str)
 {
-    return all_of(str.begin(), str.end(), ::isdigit);
+    return all_of(str.begin(), str.end(), ::isdigit); 
 }
 
 
-int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams )
+int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams,  char * ref_filename,  char * query_filename  )
 {
+
     int32_t i=0, n=1;
     uint32_t options, revComplement=0;
     seqFileReadInfo RefFile, QueryFile;
 
-    RefFile.openFile(  "ref.fasta" );
-    QueryFile.openFile( "query.fasta" );
-
-
+    RefFile.openFile( ref_filename );
+    QueryFile.openFile( query_filename );
 
     commonData::minMemLen = 2* l;
-    commonData::kmerSize = 2* l;
+    if( l % 2 == 0 )
+    	commonData::kmerSize = l; 
+    else commonData::kmerSize = l + 1;
 
     sprintf(commonData::nucmer_path, "%s/%d_tmp", getenv("NUCMER_E_MEM_OUTPUT_DIRPATH")?getenv("NUCMER_E_MEM_OUTPUT_DIRPATH"):".",getpid());
 
-    tmpFilesInfo arrayTmpFile(false?(2*NUM_TMP_FILES+2):NUM_TMP_FILES+2);
-    arrayTmpFile.openFiles(ios::out|ios::binary,false?(2*NUM_TMP_FILES+2):NUM_TMP_FILES+2);
+    tmpFilesInfo arrayTmpFile(IS_MATCH_BOTH_DEF(options)?(2*NUM_TMP_FILES+2):NUM_TMP_FILES+2);
+    arrayTmpFile.openFiles(ios::out|ios::binary, IS_MATCH_BOTH_DEF(options)?(2*NUM_TMP_FILES+2):NUM_TMP_FILES+2);
 
     RefFile.generateRevComplement(0); // This routine also computers size and num sequences
-    QueryFile.generateRevComplement((true || false)); // Reverse complement only for query
-
-    /* Only reverse complement matches */
-    if (false){
-        QueryFile.setReverseFile();
-        SET_MATCH_REV(revComplement);
-    }
+    QueryFile.generateRevComplement(0); // Reverse complement only for query
 
     arrayTmpFile.setNumMemsInFile(QueryFile.allocBinArray(), QueryFile.getNumSequences());
     RefFile.allocBinArray();
@@ -466,8 +485,8 @@ int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned ch
         }
 
         /*
-         * Process MemExt list
-         */
+         * Process MemExt list 
+         */ 
 
         arrayTmpFile.mergeMemExtVector(revComplement);
 
@@ -485,6 +504,7 @@ int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned ch
         else
             break;
     }
+
     /*
      * Free up the allocated arrays
      */
@@ -492,7 +512,7 @@ int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned ch
     RefFile.destroy();
     QueryFile.destroy();
 
-    /*
+    /* 
      * Populate sequence information in vectors. Use this to get MEM
      * positions relative to the original sequences.
      */
@@ -504,7 +524,10 @@ int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned ch
     QueryFile.generateSeqPos(querySeqInfo);
     RefFile.closeFile();
     QueryFile.closeFile();
-    arrayTmpFile.removeDuplicates(refSeqInfo, querySeqInfo, revComplement,  q_grams,  l );
+
+    arrayTmpFile.removeDuplicates(refSeqInfo, querySeqInfo, revComplement, q_grams, l);
+
+
     return 0;
 }
 

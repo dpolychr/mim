@@ -30,17 +30,21 @@ int main(int argc, char **argv)
 {
 	struct TSwitch  sw;
 
-	FILE *          in_fd;                  // the input file descriptor
-	FILE *          out_fd;                 // the output file descriptor
-	FILE *		ref;
-	FILE * 		query;
-        char *          input_filename;         // the input file name
-        char *          output_filename;        // the output file name
+	FILE *          ref_fd;                	 	// the reference file descriptor
+	FILE *          query_fd;              	 	// the query file descriptor
+	FILE *          out_fd;                 	// the output file descriptor
+	//FILE *		ref;
+	//FILE * 		query;
+        char *          ref_filename;           	// the reference file name
+	char *          query_filename;         	// the query file name
+        char *          output_filename;        	// the output file name
 
-        unsigned char ** seq    = NULL;         // the sequence(s) in memory
-        unsigned char ** seq_id = NULL;         // the sequence(s) id in memory
+        unsigned char ** ref    = NULL;         	// the reference sequence in memory
+	unsigned char ** query    = NULL;       	// the query sequence in memory
+        unsigned char ** seq_id_ref = NULL;     	// the sequences id in memory
+	unsigned char ** seq_id_query = NULL;     	// the sequences id in memory
 
-	char *          alphabet;               // the alphabet
+	char *          alphabet;              		// the alphabet
 	unsigned int    i, j;
 	unsigned int    q, l;
 	unsigned int    total_length = 0;
@@ -67,7 +71,7 @@ int main(int argc, char **argv)
                         return ( 1 );
                 }
 
-		if ( ! strcmp ( "PROT", sw . alphabet ) && sw . r == 1 )
+		if ( ! strcmp ( "PROT", sw . alphabet ) && sw . v == 1 )
 		{ 
 			
                         fprintf ( stderr, " Error: Can only work out reverse compliment matches for DNA alphabet!\n" );
@@ -80,10 +84,16 @@ int main(int argc, char **argv)
 			return ( 1 );	
 		}
 
-                input_filename       = sw . input_filename;
-		if ( input_filename == NULL )
+                ref_filename         = sw . ref_filename;
+		query_filename       = sw . query_filename;
+		if ( ref_filename == NULL )
 		{
-			fprintf ( stderr, " Error: Cannot open file for input!\n" );
+			fprintf ( stderr, " Error: Cannot open file for reference sequence!\n" );
+			return ( 1 );
+		}
+		if ( query_filename == NULL )
+		{
+			fprintf ( stderr, " Error: Cannot open file for query sequence!\n" );
 			return ( 1 );
 		}
 		if ( sw . M != 0 && sw . M != 1 )
@@ -104,11 +114,11 @@ int main(int argc, char **argv)
 
 
 	
-	/* Read the (Multi)FASTA file in memory */
-	fprintf ( stderr, " Reading the input file: %s\n", input_filename );
-	if ( ! ( in_fd = fopen ( input_filename, "r") ) )
+	/* Read the FASTA reference in memory */
+	fprintf ( stderr, " Reading the reference file: %s\n", ref_filename );
+	if ( ! ( ref_fd = fopen ( ref_filename, "r") ) )
 	{
-		fprintf ( stderr, " Error: Cannot open file %s!\n", input_filename );
+		fprintf ( stderr, " Error: Cannot open file %s!\n", ref_filename );
 		return ( 1 );
 	}
 
@@ -116,58 +126,58 @@ int main(int argc, char **argv)
         unsigned int num_seqs = 0;           // the total number of sequences considered
 	unsigned int max_alloc_seq_id = 0;
 	unsigned int max_alloc_seq = 0;
-	c = fgetc( in_fd );
+	c = fgetc( ref_fd );
 
 	do
 	{
 		if ( c != '>' )
 		{
-			fprintf ( stderr, " Error: input file %s is not in FASTA format!\n", input_filename );
+			fprintf ( stderr, " Error: input file %s is not in FASTA format!\n", ref_filename );
 			return ( 1 );
 		}
 		else
 		{
 			if ( num_seqs >= max_alloc_seq_id )
 			{
-				seq_id = ( unsigned char ** ) realloc ( seq_id,   ( max_alloc_seq_id + ALLOC_SIZE ) * sizeof ( unsigned char * ) );
+				seq_id_ref = ( unsigned char ** ) realloc ( seq_id_ref,   ( max_alloc_seq_id + ALLOC_SIZE ) * sizeof ( unsigned char * ) );
 				max_alloc_seq_id += ALLOC_SIZE;
 			}
 
 			unsigned int max_alloc_seq_id_len = 0;
 			unsigned int seq_id_len = 0;
 
-			seq_id[ num_seqs ] = NULL;
+			seq_id_ref[ num_seqs ] = NULL;
 
-			while ( ( c = fgetc( in_fd ) ) != EOF && c != '\n' )
+			while ( ( c = fgetc( ref_fd ) ) != EOF && c != '\n' )
 			{
 				if ( seq_id_len >= max_alloc_seq_id_len )
 				{
-					seq_id[ num_seqs ] = ( unsigned char * ) realloc ( seq_id[ num_seqs ],   ( max_alloc_seq_id_len + ALLOC_SIZE ) * sizeof ( unsigned char ) );
+					seq_id_ref[ num_seqs ] = ( unsigned char * ) realloc ( seq_id_ref[ num_seqs ],   ( max_alloc_seq_id_len + ALLOC_SIZE ) * sizeof ( unsigned char ) );
 					max_alloc_seq_id_len += ALLOC_SIZE;
 				}
-				seq_id[ num_seqs ][ seq_id_len++ ] = c;
+				seq_id_ref[ num_seqs ][ seq_id_len++ ] = c;
 			}
-			seq_id[ num_seqs ][ seq_id_len ] = '\0';
+			seq_id_ref[ num_seqs ][ seq_id_len ] = '\0';
 			
 		}
 
 		if ( num_seqs >= max_alloc_seq )
 		{
-			seq = ( unsigned char ** ) realloc ( seq,   ( max_alloc_seq + ALLOC_SIZE ) * sizeof ( unsigned char * ) );
+			ref = ( unsigned char ** ) realloc ( ref,   ( max_alloc_seq + ALLOC_SIZE ) * sizeof ( unsigned char * ) );
 			max_alloc_seq += ALLOC_SIZE;
 		}
 
 		unsigned int seq_len = 0;
 		unsigned int max_alloc_seq_len = 0;
 
-		seq[ num_seqs ] = NULL;
+		ref[ num_seqs ] = NULL;
 
-		while ( ( c = fgetc( in_fd ) ) != EOF && c != '>' )
+		while ( ( c = fgetc( ref_fd ) ) != EOF && c != '>' )
 		{
 			if( seq_len == 0 && c == '\n' )
 			{
-				fprintf ( stderr, " Omitting empty sequence in file %s!\n", input_filename );
-				c = fgetc( in_fd );
+				fprintf ( stderr, " Omitting empty sequence in file %s!\n", ref_filename );
+				c = fgetc( ref_fd );
 				break;
 			}
 			if( c == '\n' || c == ' ' ) continue;
@@ -176,17 +186,17 @@ int main(int argc, char **argv)
 
 			if ( seq_len >= max_alloc_seq_len )
 			{
-				seq[ num_seqs ] = ( unsigned char * ) realloc ( seq[ num_seqs ],   ( max_alloc_seq_len + ALLOC_SIZE ) * sizeof ( unsigned char ) );
+				ref[ num_seqs ] = ( unsigned char * ) realloc ( ref[ num_seqs ],   ( max_alloc_seq_len + ALLOC_SIZE ) * sizeof ( unsigned char ) );
 				max_alloc_seq_len += ALLOC_SIZE;
 			}
 
 			if( strchr ( alphabet, c ) )
 			{
-				seq[ num_seqs ][ seq_len++ ] = c;
+				ref[ num_seqs ][ seq_len++ ] = c;
 			}
 			else
 			{
-				fprintf ( stderr, " Error: input file %s contains an unexpected character %c!\n", input_filename, c );
+				fprintf ( stderr, " Error: input file %s contains an unexpected character %c!\n", ref_filename, c );
 				return ( 1 );
 			}
 
@@ -196,10 +206,10 @@ int main(int argc, char **argv)
 		{
 			if ( seq_len >= max_alloc_seq_len )
 			{
-				seq[ num_seqs ] = ( unsigned char * ) realloc ( seq[ num_seqs ],   ( max_alloc_seq_len + ALLOC_SIZE ) * sizeof ( unsigned char ) ); 
+				ref[ num_seqs ] = ( unsigned char * ) realloc ( ref[ num_seqs ],   ( max_alloc_seq_len + ALLOC_SIZE ) * sizeof ( unsigned char ) ); 
 				max_alloc_seq_len += ALLOC_SIZE;
 			}
-			seq[ num_seqs ][ seq_len ] = '\0';
+			ref[ num_seqs ][ seq_len ] = '\0';
 
 			total_length += seq_len;
 			num_seqs++;
@@ -207,13 +217,139 @@ int main(int argc, char **argv)
 		
 	} while( c != EOF );
 
-	seq[ num_seqs ] = NULL;
+	if ( num_seqs > 1 )
+	{
+        	fprintf( stderr, " Warning: %d sequences were read from file %s. Only the first sequence will be processed\n", num_seqs, ref_filename );
+	}
 
-	if ( fclose ( in_fd ) )
+	ref[ num_seqs ] = NULL;
+
+	if ( fclose ( ref_fd ) )
 	{
 		fprintf( stderr, " Error: file close error!\n");
 		return ( 1 );
 	}
+	/* Complete reading reference */
+
+
+		
+	/* Read the FASTA query in memory */
+	fprintf ( stderr, " Reading the query file: %s\n", query_filename );
+	if ( ! ( query_fd = fopen ( query_filename, "r") ) )
+	{
+		fprintf ( stderr, " Error: Cannot open file %s!\n", query_filename );
+		return ( 1 );
+	}
+
+	char cq;
+        unsigned int num_seqs_q = 0;           // the total number of sequences considered
+	unsigned int max_alloc_seq_id_q = 0;
+	unsigned int max_alloc_seq_q = 0;
+	cq = fgetc( query_fd );
+
+	do
+	{
+		if ( cq != '>' )
+		{
+			fprintf ( stderr, " Error: input file %s is not in FASTA format!\n", query_filename );
+			return ( 1 );
+		}
+		else
+		{
+			if ( num_seqs_q >= max_alloc_seq_id_q )
+			{
+				seq_id_query = ( unsigned char ** ) realloc ( seq_id_query,   ( max_alloc_seq_id_q + ALLOC_SIZE ) * sizeof ( unsigned char * ) );
+				max_alloc_seq_id_q += ALLOC_SIZE;
+			}
+
+			unsigned int max_alloc_seq_id_len_q = 0;
+			unsigned int seq_id_len_q = 0;
+
+			seq_id_query[ num_seqs_q ] = NULL;
+
+			while ( ( cq = fgetc( query_fd ) ) != EOF && cq != '\n' )
+			{
+				if ( seq_id_len_q >= max_alloc_seq_id_len_q )
+				{
+					seq_id_query[ num_seqs_q ] = ( unsigned char * ) realloc ( seq_id_query[ num_seqs_q ],   ( max_alloc_seq_id_len_q + ALLOC_SIZE ) * sizeof ( unsigned char ) );
+					max_alloc_seq_id_len_q += ALLOC_SIZE;
+				}
+				seq_id_query[ num_seqs_q ][ seq_id_len_q++ ] = cq;
+			}
+			seq_id_query[ num_seqs_q ][ seq_id_len_q ] = '\0';
+			
+		}
+
+		if ( num_seqs_q >= max_alloc_seq_q )
+		{
+			query = ( unsigned char ** ) realloc ( query,   ( max_alloc_seq_q + ALLOC_SIZE ) * sizeof ( unsigned char * ) );
+			max_alloc_seq_q += ALLOC_SIZE;
+		}
+
+		unsigned int seq_len_q = 0;
+		unsigned int max_alloc_seq_len_q = 0;
+
+		query[ num_seqs_q ] = NULL;
+
+		while ( ( cq = fgetc( query_fd ) ) != EOF && cq != '>' )
+		{
+			if( seq_len_q == 0 && cq == '\n' )
+			{
+				fprintf ( stderr, " Omitting empty sequence in file %s!\n", query_filename );
+				cq = fgetc( query_fd );
+				break;
+			}
+			if( cq == '\n' || cq == ' ' ) continue;
+
+			cq = toupper( cq );
+
+			if ( seq_len_q >= max_alloc_seq_len_q )
+			{
+				query[ num_seqs_q ] = ( unsigned char * ) realloc ( query[ num_seqs_q ],   ( max_alloc_seq_len_q + ALLOC_SIZE ) * sizeof ( unsigned char ) );
+				max_alloc_seq_len_q += ALLOC_SIZE;
+			}
+
+			if( strchr ( alphabet, cq ) )
+			{
+				query[ num_seqs_q ][ seq_len_q++ ] = cq;
+			}
+			else
+			{
+				fprintf ( stderr, " Error: input file %s contains an unexpected character %c!\n", query_filename, cq );
+				return ( 1 );
+			}
+
+		}
+
+		if( seq_len_q != 0 )
+		{
+			if ( seq_len_q >= max_alloc_seq_len_q )
+			{
+				query[ num_seqs_q ] = ( unsigned char * ) realloc ( query[ num_seqs_q ],   ( max_alloc_seq_len_q + ALLOC_SIZE ) * sizeof ( unsigned char ) ); 
+				max_alloc_seq_len_q += ALLOC_SIZE;
+			}
+			query[ num_seqs_q ][ seq_len_q ] = '\0';
+
+			total_length += seq_len_q;
+			num_seqs_q++;
+		}
+		
+	} while( cq != EOF );
+
+	if ( num_seqs_q > 1 )
+	{
+        	fprintf( stderr, " Warning: %d sequences were read from file %s. Only the first sequence will be processed\n", num_seqs_q, query_filename );
+	}
+
+	query[ num_seqs_q ] = NULL;
+
+	if ( fclose ( query_fd ) )
+	{
+		fprintf( stderr, " Error: file close error!\n");
+		return ( 1 );
+	}
+
+	/* Complete reading query */
 
 	if( sw . k < 0 )
 	{
@@ -221,29 +357,22 @@ int main(int argc, char **argv)
 		return ( 1 );	
 	}
 
-	unsigned int q_gram_size = sw . l / sw . k + 1;
-
-	ref = fopen ( "ref.fasta", "w");
-	fprintf( ref, ">%s\n%s\n", seq_id[0], seq[0] );
-	fclose ( ref );
-	query = fopen ( "query.fasta", "w");
-	fprintf( query, ">%s\n%s\n", seq_id[1], seq[1] );
-	fclose ( query );
+	unsigned int q_gram_size = sw . l / ( sw . k + 1 );
 
 	fprintf ( stderr, " Finding all maximal inexact matches \n" );
 
 	vector<QGramOcc> * q_grams = new vector<QGramOcc>;
 	vector<MimOcc> * mims = new vector<MimOcc>;
 
-	if( sw . r == 1 )
+	if( sw . v == 1 )
 	{
-		unsigned char * rc_seq = ( unsigned char * ) calloc ( ( strlen( ( char* ) seq[1] ) + 1 ) , sizeof( unsigned char ) );
+		unsigned char * rc_seq = ( unsigned char * ) calloc ( ( strlen( ( char* ) query[1] ) + 1 ) , sizeof( unsigned char ) );
 			
-		rev_compliment( seq[1], rc_seq , strlen( ( char* ) seq[1] ) - 1 );
-		rc_seq[  strlen( ( char* ) seq[1] ) ] = '\0';
+		rev_compliment( query[0], rc_seq , strlen( ( char* ) query[0] ) - 1 );
+		rc_seq[  strlen( ( char* ) query[0] ) ] = '\0';
 
-		find_maximal_exact_matches( q_gram_size , seq[0], rc_seq , q_grams );
-		find_maximal_inexact_matches( sw , seq[0], rc_seq, q_grams, mims );
+		find_maximal_exact_matches( q_gram_size , ref[0], rc_seq , q_grams, ref_filename, query_filename );
+		find_maximal_inexact_matches( sw , ref[0], rc_seq, q_grams, mims );
 
 		free( rc_seq );
 
@@ -251,8 +380,9 @@ int main(int argc, char **argv)
 	}
 	else 
 	{
-		find_maximal_exact_matches( q_gram_size , seq[0], seq[1] , q_grams );
-		find_maximal_inexact_matches( sw , seq[0], seq[1], q_grams, mims );
+		find_maximal_exact_matches( q_gram_size , ref[0], query[0] , q_grams,  ref_filename, query_filename );
+
+		find_maximal_inexact_matches( sw , ref[0], query[0], q_grams, mims );
 	}
 
 	delete( q_grams );
@@ -328,12 +458,20 @@ int main(int argc, char **argv)
 	
 	for ( i = 0; i < num_seqs; i ++ )
 	{
-		free ( seq[i] );
-		free( seq_id[i] );
-	}	
-	free ( seq );
-	free ( seq_id );
-        free ( sw . input_filename );
+		free ( ref[i] );
+		free( seq_id_ref[i] );
+	}
+	for ( i = 0; i < num_seqs_q; i ++ )
+	{
+		free ( query[i] );
+		free( seq_id_query[i] );
+	}		
+	free ( ref );
+	free ( seq_id_ref );
+	free ( query );
+	free ( seq_id_query );
+        free ( sw . ref_filename );
+	free ( sw . query_filename );
         free ( sw . output_filename );
         free ( sw . alphabet );
 	

@@ -23,16 +23,12 @@
  *  This file is subject to the terms and conditions defined in the  *
  *  file 'LICENSE', which is part of this source code package.       *
  * ================================================================= */
-
+using namespace std;
 
 #define CHARS2BITS(x) 		(2*(x)) //convert char position to bit position
 #define DATATYPE_WIDTH          64 	// number of bits
 #define RANDOM_SEQ_SIZE         10
 #define NUM_TMP_FILES           24
-
-#include <vector>
-
-using namespace std;
 
 class commonData {
   public:
@@ -56,13 +52,6 @@ int32_t commonData::fourColOutput=0;
 int32_t commonData::lenInHeader=0;
 int32_t commonData::relQueryPos=0;
 char commonData::nucmer_path[256]={'\0'};
-
-struct QGramOcc
- {
-   unsigned int  occRef;
-   unsigned int	 occQuery;
-   unsigned int  length;
- };
 
 
 class seqData {
@@ -415,10 +404,8 @@ class seqFileReadInfo {
                           processInput(line, sz, blockNCount);
                       }else {
                           processInput(randomStr(), sz, blockNCount);
-				
                       }
-                      if (totalBases == sz) 
-		      {
+                      if (totalBases == sz) {
                           if ((totalBases%32)!=0)
                           {
                               uint64_t offset = CHARS2BITS(totalBases)%DATATYPE_WIDTH;
@@ -430,13 +417,11 @@ class seqFileReadInfo {
                               blockOfNs.push_back(mapObject(CHARS2BITS(blockNCount-1), CHARS2BITS(totalBases-1)));
                               blockNCount=0;
                           }
-			
                           return true;
                       }
                   }
                   if( !line.empty() ){
                       strName = line.substr(1);
-			
                   }
               } else if( !strName.empty() ){
                   processInput(line, sz, blockNCount);
@@ -660,9 +645,9 @@ class tmpFilesInfo {
         m.lR=lR;
         m.rQ=rQ;
         m.rR=rR;
-       // if (IS_MATCH_BOTH_DEF(revComplement))
-        //    TmpFiles[m.lQ/numMemsInFile+NUM_TMP_FILES].write((char *)&m, sizeof(MemExt));
-        //else
+        if (IS_MATCH_BOTH_DEF(revComplement))
+            TmpFiles[m.lQ/numMemsInFile+NUM_TMP_FILES].write((char *)&m, sizeof(MemExt));
+        else
             TmpFiles[m.lQ/numMemsInFile].write((char *)&m, sizeof(MemExt));
     }
     
@@ -762,7 +747,7 @@ class tmpFilesInfo {
     {
         if (revComplement & 0x1){
             if (commonData::lenInHeader) {
-               cout << "> " << (*itQ).seq << " Reverse" << " Len = " << ((*itQ).end-(*itQ).start+2)/2 << endl;
+                cout << "> " << (*itQ).seq << " Reverse" << " Len = " << ((*itQ).end-(*itQ).start+2)/2 << endl;
             }else{
                 cout << "> " << (*itQ).seq << " Reverse" << endl;
             }
@@ -775,7 +760,7 @@ class tmpFilesInfo {
         }
     }
 
-    void printMemOnTerminal(vector<seqData> &refSeqInfo, vector<seqData> &querySeqInfo, MemExt &m, uint32_t &revComplement, vector<QGramOcc> * q_grams, int l ) {
+   void printMemOnTerminal(vector<seqData> &refSeqInfo, vector<seqData> &querySeqInfo, MemExt &m, uint32_t &revComplement, vector<QGramOcc> * q_grams, int l ) {
         uint64_t &lRef = m.lR;
         uint64_t &rRef = m.rR;
         uint64_t &lQue = m.lQ;
@@ -913,6 +898,7 @@ class tmpFilesInfo {
         }
     }
    
+   
     void mergeMemExtVector (uint32_t &revComplement) {
         int flag=0;
         MemExt m;
@@ -1019,7 +1005,7 @@ class tmpFilesInfo {
         remove(buffer);
     }
 
-    void removeDuplicates(vector<seqData> &refSeqInfo, vector<seqData> &querySeqInfo, uint32_t revComplement,  vector<QGramOcc> * q_grams, int l ) {
+void removeDuplicates(vector<seqData> &refSeqInfo, vector<seqData> &querySeqInfo, uint32_t revComplement,  vector<QGramOcc> * q_grams, int l ) {
         streambuf *coutbuf=std::cout.rdbuf();
         int numFiles=0;
         MemExt m;

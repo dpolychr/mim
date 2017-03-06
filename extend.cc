@@ -33,6 +33,7 @@ using namespace seqan;
 int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mims )
 {
 
+
 	merge( sw, ref, query, q_grams, mims );
 
 	for( int i=0; i<mims->size(); i++ )
@@ -46,6 +47,7 @@ int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char
 	{
 		adjust(  &mims->at(j).error, (int*) &mims->at(j).startQuery, (int*) &mims->at(j).endQuery, (int*) &mims->at(j).startRef, (int*) &mims->at(j).endRef, ref, query, sw );
 	}
+
 	
 return 0;
 }
@@ -181,11 +183,11 @@ int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 			free( m_query_R );
 
 		}
-		else if( qE == strlen( ( char* ) yInput ) )
+		else if( qE == strlen( ( char* ) yInput ) && rE != strlen( ( char* ) xInput ) )
 		{
 			edit_distance_R = edit_distance_total_R + 1;
 		}
-		else if( rE == strlen( ( char* ) xInput ) )
+		else if( rE == strlen( ( char* ) xInput ) && qE != strlen( ( char* ) yInput ) )
 		{
 			edit_distance_R = edit_distance_total_R + 1;
 		}
