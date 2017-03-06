@@ -30,13 +30,14 @@
 static struct option long_options[] =
  {
    { "alphabet",                	required_argument, NULL, 'a' },
-   { "seqs-file",              		required_argument, NULL, 'i' },
+   { "ref-file",              		required_argument, NULL, 'r' },
+   { "query-file",              	required_argument, NULL, 'q' },
    { "output-file",             	required_argument, NULL, 'o' },
    { "min-seq-length",          	required_argument, NULL, 'l' },
    { "max-error-size",          	required_argument, NULL, 'k' },
    { "threads", 			optional_argument, NULL, 'T' },
    { "longest-inc-matches", 	        optional_argument, NULL, 'M' },
-   { "rev-compliment",                  optional_argument, NULL, 'r' },
+   { "rev-compliment",                  optional_argument, NULL, 'v' },
    { "min-cluster-size",                optional_argument, NULL, 'c' },
    { "help",                    	no_argument,       NULL, 'h' },
    { NULL,                      	0,                 NULL,  0  }
@@ -56,7 +57,8 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
 
    /* initialisation */
    sw -> alphabet                       = NULL;
-   sw -> input_filename                 = NULL;
+   sw -> query_filename                 = NULL;
+   sw -> ref_filename                   = NULL;
    sw -> output_filename                = NULL;
    sw -> l                              = 10;
    sw -> k				= 1;
@@ -65,7 +67,7 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
    sw -> T                              = 1;
    args = 0;
 
-   while ( ( opt = getopt_long ( argc, argv, "a:i:o:l:k:T:r:M:c:h", long_options, &oi ) ) != -1 ) 
+   while ( ( opt = getopt_long ( argc, argv, "a:i:o:l:k:T:r:q:v:M:c:h", long_options, &oi ) ) != -1 ) 
     {
 
       switch ( opt )
@@ -76,9 +78,15 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
            args ++;
            break;
 
-         case 'i':
-           sw -> input_filename = ( char * ) malloc ( ( strlen ( optarg ) + 1 ) * sizeof ( char ) );
-           strcpy ( sw -> input_filename, optarg );
+         case 'q':
+           sw -> query_filename = ( char * ) malloc ( ( strlen ( optarg ) + 1 ) * sizeof ( char ) );
+           strcpy ( sw -> query_filename, optarg );
+           args ++;
+           break;
+
+	 case 'r':
+           sw -> ref_filename = ( char * ) malloc ( ( strlen ( optarg ) + 1 ) * sizeof ( char ) );
+           strcpy ( sw -> ref_filename, optarg );
            args ++;
            break;
 
@@ -124,13 +132,13 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
            sw -> c = val;
            break;
 
-	case 'r':
+	case 'v':
            val = strtol ( optarg, &ep, 10 );
            if ( optarg == ep )
             {
               return ( 0 );
             }
-           sw -> r = val;
+           sw -> v = val;
            break;
 	
 	 case 'T':
@@ -164,15 +172,16 @@ void usage ( void )
    fprintf ( stdout, " Usage: MIM <options>\n" );
    fprintf ( stdout, " Standard (Mandatory):\n" );
    fprintf ( stdout, "  -a, --alphabet                 <str>		'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
-   fprintf ( stdout, "  -i, --input-file               <str>		MultiFASTA input filename.\n" );
+   fprintf ( stdout, "  -r, --input-file               <str>		FASTA reference filename.\n" );
+   fprintf ( stdout, "  -q, --input-file               <str>		FASTA query filename.\n" );
    fprintf ( stdout, "  -o, --output-file              <str>		Output filename with maximal inexact matches.\n" );    
    fprintf ( stdout, "  -l, --min-seq-length           <int>		Minimum length of match.\n" );   
    fprintf ( stdout, "  -k, --max-error-size           <int>		Maximum error size between matches.\n" );
    fprintf ( stdout, " Optional:\n" );
    fprintf ( stdout, "  -M, --longest-inc-matches      <int>		Choose 1 to return all longest increasing maximal inexact matches\n"
-                     "                                                or 0 to return all maximal inexact matches. Default: 0.\n" );
+                     "                                                  or 0 to return all maximal inexact matches. Default: 0.\n" );
    fprintf ( stdout, "  -c, --min-cluster-size         <int>		Minimum number of MIM in each cluster when M=1. Default: 5.\n");
-   fprintf ( stdout, "  -r, --rev-compliment           <int>		Choose 1 to compute reverse compliment matches and 0 otherwise. Default: 0.\n");
+   fprintf ( stdout, "  -v, --rev-compliment           <int>		Choose 1 to compute reverse compliment matches and 0 otherwise. Default: 0.\n");
    fprintf ( stdout, " Number of threads:\n" ); 
    fprintf ( stdout, "  -T, --threads                  <int>		Number of threads to use. Default: 1. \n" );
  }
