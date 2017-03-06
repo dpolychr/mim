@@ -11,7 +11,6 @@ x and y.
   -a, --alphabet               <str>      'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.
   -i, --input-file             <str>      MultiFASTA input filename.
   -o, --output-file            <str>      Output filename with maximal inexact matches.
-  -q, --q-size                 <int>      Minimum length of q-gram.
   -l, --min-seq-length         <int>      Minimum length of match.
   -k, --max-error-size         <int>      Maximum error size between matches.
  Optional:
