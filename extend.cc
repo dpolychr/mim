@@ -82,6 +82,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 					q_end = q_end + gap_size_query + q_grams->at(j).length;
 					current_qgram = j;
 				}
+				else break;
 			}
 			else if( gap_size_query == 0 && gap_size_ref <= sw . k && gap_size_ref > 0 ) 
 			{
@@ -92,6 +93,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 					q_end = q_end + q_grams->at(j).length;
 					current_qgram = j;
 				}
+				else break;
 			}
 			else if( gap_size_query == 0 && gap_size_ref == 0 )
 			{
@@ -124,6 +126,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 					current_qgram = j;
 				
 				}
+				else break;
 			}
 		}	
 
