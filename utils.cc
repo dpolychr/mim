@@ -63,6 +63,7 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
    sw -> l                              = 10;
    sw -> k				= 1;
    sw -> M				= 0;
+   sw -> v				= 0;
    sw -> c				= 5;
    sw -> T                              = 1;
    args = 0;
