@@ -110,9 +110,6 @@ int main(int argc, char **argv)
 
         }
 
-	double start = gettime();
-
-
 	
 	/* Read the FASTA reference in memory */
 	fprintf ( stderr, " Reading the reference file: %s\n", ref_filename );
@@ -350,6 +347,8 @@ int main(int argc, char **argv)
 	}
 
 	/* Complete reading query */
+
+	double start = gettime();
 
 	if( sw . k < 0 )
 	{

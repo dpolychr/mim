@@ -24,6 +24,8 @@
 #include <string.h>
 #include <sys/time.h>
 #include <omp.h>
+#include <seqan/sequence.h>
+#include <seqan/index.h>
 #include <seqan/align.h>
 #include "mim.h"
 
@@ -33,26 +35,25 @@ using namespace seqan;
 int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mims )
 {
 
-
+	fprintf ( stderr, " -Merging exact matches\n" );
 	merge( sw, ref, query, q_grams, mims );
 
+	fprintf ( stderr, " -Extending merged matches\n" );
 	for( int i=0; i<mims->size(); i++ )
 	{
 		if( mims->at(i). error < sw . k )
 			extend( &mims->at(i).error, (int*) &mims->at(i).startQuery, (int*) &mims->at(i).endQuery, (int*) &mims->at(i).startRef, (int*) &mims->at(i).endRef, ref, query, sw );
 	}
 	
-
+	fprintf ( stderr, " -Adjusting extended matches\n" );
 	for( int j=0; j<mims->size(); j++ )
 	{
 		adjust(  &mims->at(j).error, (int*) &mims->at(j).startQuery, (int*) &mims->at(j).endQuery, (int*) &mims->at(j).startRef, (int*) &mims->at(j).endRef, ref, query, sw );
 	}
 
-	
 return 0;
 }
 
-			
 int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mims )
 {
 	for( int i = 0; i<q_grams->size(); i++ )
@@ -69,41 +70,48 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 
 		for( int j = i + 1; j<q_grams->size(); j++ )
 		{
-	
+		
+			if( q_grams->at(j).occRef < q_grams->at(current_qgram).occRef )
+				break;
+
 			gap_size_ref = 	q_grams->at(j).occRef - ( q_grams->at(current_qgram).occRef + q_grams->at(current_qgram).length ); 
 			gap_size_query = q_grams->at(j).occQuery - ( q_grams->at(current_qgram).occQuery + q_grams->at(current_qgram).length );
 
-			if( gap_size_ref == 0 && gap_size_query <= sw . k && gap_size_query > 0) // other query gap must be still smaller than k 
+			if( gap_size_ref <= 0 && gap_size_query >= sw . k  )
 			{
 				if( edit_distance + gap_size_query <= sw . k )
 				{
 					edit_distance = edit_distance + gap_size_query;
-					r_end = r_end + q_grams->at(j).length;  
+					r_end = q_grams->at(j).occRef + q_grams->at(j).length; 
 					q_end = q_end + gap_size_query + q_grams->at(j).length;
 					current_qgram = j;
 				}
 				else break;
 			}
-			else if( gap_size_query == 0 && gap_size_ref <= sw . k && gap_size_ref > 0 ) 
+			else if( gap_size_query <= 0 && gap_size_ref >= sw . k ) 
 			{
+	
 				if( edit_distance + gap_size_ref <= sw . k )
 				{
+
 					edit_distance = edit_distance + gap_size_ref;
 					r_end = r_end + gap_size_ref + q_grams->at(j).length;
-					q_end = q_end + q_grams->at(j).length;
+					q_end =  q_grams->at(j).occQuery + q_grams->at(j).length; 
 					current_qgram = j;
 				}
 				else break;
 			}
-			else if( gap_size_query == 0 && gap_size_ref == 0 )
-			{
+			else if( gap_size_query <= 0 && gap_size_ref <= 0 )
+			{	
 				r_end = q_grams->at(j).occRef + q_grams->at(j).length;
 				q_end = q_grams->at(j).occQuery + q_grams->at(j).length;
 				current_qgram = j;
 			}
 			else if ( gap_size_query > 0 && gap_size_ref > 0 )
 			{
-			
+				if( abs( gap_size_query -  gap_size_ref ) > sw . k )
+					break;
+				
 				unsigned char * m_query = ( unsigned char * ) calloc ( gap_size_query + 1, sizeof ( unsigned char ) );
 				unsigned char * m_ref = ( unsigned char * ) calloc ( gap_size_ref + 1, sizeof ( unsigned char ) );
 			
@@ -113,7 +121,13 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 				m_query[ gap_size_query ] = '\0';
 				m_ref[ gap_size_ref ] = '\0';
 
+				int matching_qgrams = compute_qgrams( m_ref, m_query );
+
+				if( ( ( strlen( ( char * ) ref ) + 1 - matching_qgrams) / 3 ) - 1 + edit_distance > sw . k )
+					break;
+
 				int edit_distance_temp = edit_distance + editDistanceMyers( m_query, m_ref );
+
 
 				free( m_query );
 				free( m_ref );
@@ -128,6 +142,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 				}
 				else break;
 			}
+
 		}	
 
 		MimOcc occ;
@@ -408,6 +423,71 @@ int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 	}
 
 return 0;
+}
+
+template <typename TStringSet, typename TIndexSpec>
+int q_gram_counting(TStringSet &set, TIndexSpec )
+{
+
+	typedef String<char> TString;
+	typedef Index<TStringSet, TIndexSpec> TIndex;
+	typedef typename Fibre<TIndex, QGramCounts>::Type TCounts;
+	typedef typename Fibre<TIndex, QGramCountsDir>::Type TCountsDir;
+	typedef typename Value<TCountsDir>::Type TDirValue;
+	typedef typename Iterator<TCounts, Standard>::Type TIterCounts;
+	typedef typename Iterator<TCountsDir, Standard>::Type TIterCountsDir;
+
+	TIndex index(set);
+	indexRequire(index, QGramCounts());
+
+	int seqNum = countSequences(index);
+	Matrix<int, 2> distMat;
+	setLength(distMat, 0, seqNum);
+	setLength(distMat, 1, seqNum);
+	resize(distMat, 0);
+
+	int num_q_grams = 0;
+
+	TIterCountsDir itCountsDir = begin(indexCountsDir(index), Standard());
+	TIterCountsDir itCountsDirEnd = end(indexCountsDir(index), Standard());
+	TIterCounts itCountsBegin = begin(indexCounts(index), Standard());
+
+	TDirValue bucketBegin = *itCountsDir;
+	for(++itCountsDir; itCountsDir != itCountsDirEnd; ++itCountsDir)
+	{
+		TDirValue bucketEnd = *itCountsDir;
+
+		if (bucketBegin != bucketEnd)
+		{
+			TIterCounts itA = itCountsBegin + bucketBegin;
+			TIterCounts itEnd = itCountsBegin + bucketEnd;
+			for(; itA != itEnd; ++itA)
+				for(TIterCounts itB = itA; itB != itEnd; ++itB)
+					distMat((*itA).i1, (*itB).i1)  += _min((*itA).i2, (*itB).i2);
+		}
+		bucketBegin = bucketEnd;
+	}
+
+return distMat(0,1);
+}
+
+
+int compute_qgrams( unsigned char * m_ref, unsigned char * m_query )
+{
+
+	typedef String<char> TString;
+
+   	 TString r = m_ref;
+   	 TString q = m_query;
+	StringSet<DnaString> stringSet;
+	reserve(stringSet, 2); //2 is number of sequences
+
+	appendValue(stringSet, r);
+	appendValue(stringSet, q);
+
+	int no_q_grams = q_gram_counting(stringSet, IndexQGram<UngappedShape<4>, OpenAddressing>() );
+
+return no_q_grams;
 }
 
 /*
