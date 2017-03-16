@@ -39,6 +39,10 @@ static struct option long_options[] =
    { "longest-inc-matches", 	        optional_argument, NULL, 'M' },
    { "rev-compliment",                  optional_argument, NULL, 'v' },
    { "min-cluster-size",                optional_argument, NULL, 'c' },
+   { "ref_start_pos",              	optional_argument, NULL, 'z' },
+   { "ref_end_pos",              	optional_argument, NULL, 'x' },
+   { "query_start_pos",              	optional_argument, NULL, 'n' },
+   { "query_end_pos",              	optional_argument, NULL, 'm' },
    { "help",                    	no_argument,       NULL, 'h' },
    { NULL,                      	0,                 NULL,  0  }
  };
@@ -66,9 +70,13 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
    sw -> v				= 0;
    sw -> c				= 5;
    sw -> T                              = 1;
+   sw -> z				= 0;
+   sw -> x				= -1;
+   sw -> n				= 0;
+   sw -> m                              = -1;
    args = 0;
 
-   while ( ( opt = getopt_long ( argc, argv, "a:i:o:l:k:T:r:q:v:M:c:h", long_options, &oi ) ) != -1 ) 
+   while ( ( opt = getopt_long ( argc, argv, "a:i:o:l:k:T:r:q:v:M:c:z:x:n:m:h", long_options, &oi ) ) != -1 ) 
     {
 
       switch ( opt )
@@ -151,6 +159,42 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
            sw -> T = val;
            break;
 
+	case 'z':
+           val = strtod ( optarg, &ep );
+           if ( optarg == ep )
+            {
+              return ( 0 );
+            }
+           sw -> z = val;
+           break;
+
+	case 'x':
+           val = strtod ( optarg, &ep );
+           if ( optarg == ep )
+            {
+              return ( 0 );
+            }
+           sw -> x = val;
+           break;
+
+	case 'n':
+           val = strtod ( optarg, &ep );
+           if ( optarg == ep )
+            {
+              return ( 0 );
+            }
+           sw -> n = val;
+           break;
+
+	case 'm':
+           val = strtod ( optarg, &ep );
+           if ( optarg == ep )
+            {
+              return ( 0 );
+            }
+           sw -> m = val;
+           break;
+
          case 'h':
            return ( 0 );
        }
@@ -179,10 +223,15 @@ void usage ( void )
    fprintf ( stdout, "  -l, --min-seq-length           <int>		Minimum length of match.\n" );   
    fprintf ( stdout, "  -k, --max-error-size           <int>		Maximum error size between matches.\n" );
    fprintf ( stdout, " Optional:\n" );
-   fprintf ( stdout, "  -M, --longest-inc-matches      <int>		Choose 1 to return all longest increasing maximal inexact matches\n"
-                     "                                                  or 0 to return all maximal inexact matches. Default: 0.\n" );
+   fprintf ( stdout, "  -M, --longest-inc-matches      <int>		Choose 1 to return all longest increasing maximal inexact matches\n");
+   fprintf ( stdout, "                                                or 0 to return all maximal inexact matches. Default: 0.\n");
    fprintf ( stdout, "  -c, --min-cluster-size         <int>		Minimum number of MIM in each cluster when M=1. Default: 5.\n");
-   fprintf ( stdout, "  -v, --rev-compliment           <int>		Choose 1 to compute reverse compliment matches and 0 otherwise. Default: 0.\n");
+   fprintf ( stdout, "  -v, --rev-compliment           <int>		Choose 1 to compute reverse compliment matches and 0 otherwise.\n");
+   fprintf ( stdout, "                                                Default: 0.\n");
+   fprintf ( stdout, "  -z, --ref_start_pos            <int>		Starting position of reference to search. Default: 0.\n");
+   fprintf ( stdout, "  -x, --ref_end_pos              <int>		Ending position of reference to search. Default: ref length.\n");
+   fprintf ( stdout, "  -n, --query_start_pos          <int>		Starting position of query to search. Default: 0.\n");
+   fprintf ( stdout, "  -m, --query_end_pos            <int>		Ending position of query to search. Default: query length.\n");
    fprintf ( stdout, " Number of threads:\n" ); 
    fprintf ( stdout, "  -T, --threads                  <int>		Number of threads to use. Default: 1. \n" );
  }

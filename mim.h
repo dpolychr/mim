@@ -17,6 +17,7 @@
 **/
 
 #include <vector>
+#include <string>
 #define INITIAL_SC		-100000
 #define ALLOC_SIZE               104857
 #define NA			'N'
@@ -47,7 +48,7 @@ struct TSwitch
    char               * query_filename;
    char               * output_filename;
    unsigned int         matrix;
-   int 			T, M;
+   int 			T, M, z, x, n, m;
    unsigned int         l, k, c, v;
  };
 
@@ -76,7 +77,7 @@ double gettime ( void );
 void usage ( void );
 int compute_qgrams( unsigned char * m_ref, unsigned char * m_query );
 int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw  );
-int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams,  char * ref_filename, char * query_filename );
+int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams );
 int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mnms );
 int extend( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw );
 int editDistanceMyers( unsigned char * xInput, unsigned char * yInput );

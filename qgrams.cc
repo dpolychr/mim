@@ -418,15 +418,15 @@ bool is_numeric(const string &str)
 }
 
 
-int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams,  char * ref_filename,  char * query_filename  )
+int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams )
 {
 
     int32_t i=0, n=1;
     uint32_t options, revComplement=0;
     seqFileReadInfo RefFile, QueryFile;
 
-    RefFile.openFile( ref_filename );
-    QueryFile.openFile( query_filename );
+    RefFile.openFile( "new_ref.fa" );
+    QueryFile.openFile( "new_query.fa" );
 
     commonData::minMemLen = 2* l;
     if( l % 2 == 0 )

@@ -38,13 +38,18 @@ int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char
 	fprintf ( stderr, " -Merging exact matches\n" );
 	merge( sw, ref, query, q_grams, mims );
 
+
+
+
+
 	fprintf ( stderr, " -Extending merged matches\n" );
 	for( int i=0; i<mims->size(); i++ )
 	{
 		if( mims->at(i). error < sw . k )
 			extend( &mims->at(i).error, (int*) &mims->at(i).startQuery, (int*) &mims->at(i).endQuery, (int*) &mims->at(i).startRef, (int*) &mims->at(i).endRef, ref, query, sw );
 	}
-	
+
+
 	fprintf ( stderr, " -Adjusting extended matches\n" );
 	for( int j=0; j<mims->size(); j++ )
 	{
@@ -77,7 +82,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 			gap_size_ref = 	q_grams->at(j).occRef - ( q_grams->at(current_qgram).occRef + q_grams->at(current_qgram).length ); 
 			gap_size_query = q_grams->at(j).occQuery - ( q_grams->at(current_qgram).occQuery + q_grams->at(current_qgram).length );
 
-			if( gap_size_ref <= 0 && gap_size_query >= sw . k  )
+			if( gap_size_ref == 0 && gap_size_query >= sw . k  )
 			{
 				if( edit_distance + gap_size_query <= sw . k )
 				{
@@ -88,7 +93,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 				}
 				else break;
 			}
-			else if( gap_size_query <= 0 && gap_size_ref >= sw . k ) 
+			else if( gap_size_query == 0 && gap_size_ref >= sw . k ) 
 			{
 	
 				if( edit_distance + gap_size_ref <= sw . k )
@@ -101,7 +106,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 				}
 				else break;
 			}
-			else if( gap_size_query <= 0 && gap_size_ref <= 0 )
+			else if( gap_size_query == 0 && gap_size_ref == 0 )
 			{	
 				r_end = q_grams->at(j).occRef + q_grams->at(j).length;
 				q_end = q_grams->at(j).occQuery + q_grams->at(j).length;
@@ -124,10 +129,13 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 				int matching_qgrams = compute_qgrams( m_ref, m_query );
 
 				if( ( ( strlen( ( char * ) ref ) + 1 - matching_qgrams) / 3 ) - 1 + edit_distance > sw . k )
+				{	
+					free( m_query );
+					free( m_ref );
 					break;
+				}
 
 				int edit_distance_temp = edit_distance + editDistanceMyers( m_query, m_ref );
-
 
 				free( m_query );
 				free( m_ref );

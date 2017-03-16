@@ -17,6 +17,7 @@
 **/
 
 #include <iostream>
+#include <fstream>  
 #include <cstdlib>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,8 +34,6 @@ int main(int argc, char **argv)
 	FILE *          ref_fd;                	 	// the reference file descriptor
 	FILE *          query_fd;              	 	// the query file descriptor
 	FILE *          out_fd;                 	// the output file descriptor
-	//FILE *		ref;
-	//FILE * 		query;
         char *          ref_filename;           	// the reference file name
 	char *          query_filename;         	// the query file name
         char *          output_filename;        	// the output file name
@@ -107,6 +106,11 @@ int main(int argc, char **argv)
 			return ( 1 );
 		}
 		output_filename         = sw . output_filename;
+		if( sw . z < 0 || sw . n  < 0 )
+		{
+			fprintf ( stderr, " Error: Reference starting position and query starting position must be greater or equal to 0!\n" );
+			return ( 1 );
+		}
 
         }
 
@@ -228,7 +232,6 @@ int main(int argc, char **argv)
 	}
 	/* Complete reading reference */
 
-
 		
 	/* Read the FASTA query in memory */
 	fprintf ( stderr, " Reading the query file: %s\n", query_filename );
@@ -348,7 +351,17 @@ int main(int argc, char **argv)
 
 	/* Complete reading query */
 
-	double start = gettime();
+
+	if( sw . x > 0 && sw . x > strlen( (char * ) ref[0] ) )
+	{
+		fprintf ( stderr, " Error: Reference ending position is larger than sequence length!\n" );
+		return ( 1 );
+	}
+	if( sw . m > 0 && sw . m > strlen( (char * ) query[0] ) )
+	{
+		fprintf ( stderr, " Error: Query ending position is larger than sequence length!\n" );
+		return ( 1 );
+	}
 
 	if( sw . k < 0 )
 	{
@@ -356,21 +369,56 @@ int main(int argc, char **argv)
 		return ( 1 );	
 	}
 
+	double start = gettime();
+
 	unsigned int q_gram_size = sw . l / ( sw . k + 1 );
 
 	fprintf ( stderr, " Finding all maximal inexact matches \n" );
+
+	if( sw . x != - 1 )
+	{
+		memcpy( &ref[0][0], &ref[0][sw . z], sw . x - sw . z );
+		ref[0][sw .x - sw. z] = '\0';
+	}
+	else
+	{
+		memcpy( &ref[0][0], &ref[0][sw.z], strlen( (char*) ref[0] ) - sw . x );
+		ref[0][strlen( (char*) ref[0] ) - sw . x] = '\0'; 
+
+	}
+	if( sw . m != - 1 )
+	{
+		memcpy( &query[0][0], &query[0][sw . n], sw . m - sw . n );
+		query[0][sw.m - sw.n] = '\0';
+	}
+	else
+	{
+		memcpy( &query[0][0], &query[0][sw . n], strlen( (char*) query[0] ) -  sw . m );
+		query[0][strlen( (char*) query[0] )  - sw.m] = '\0';
+
+	}
+
+	ofstream new_ref;
+	new_ref.open("new_ref.fa");
+  	new_ref <<">"<<seq_id_ref[0]<<"\n"<<ref[0]<<"\n";
+  	new_ref.close();  
+
+	ofstream new_query;
+	new_query.open("new_query.fa");
+  	new_query <<">"<<seq_id_query[0]<<"\n"<<query[0]<<"\n";
+  	new_query.close();  
 
 	vector<QGramOcc> * q_grams = new vector<QGramOcc>;
 	vector<MimOcc> * mims = new vector<MimOcc>;
 
 	if( sw . v == 1 )
 	{
-		unsigned char * rc_seq = ( unsigned char * ) calloc ( ( strlen( ( char* ) query[1] ) + 1 ) , sizeof( unsigned char ) );
+		unsigned char * rc_seq = ( unsigned char * ) calloc ( ( strlen( ( char* ) query[0] ) + 1 ) , sizeof( unsigned char ) );
 			
 		rev_compliment( query[0], rc_seq , strlen( ( char* ) query[0] ) - 1 );
 		rc_seq[  strlen( ( char* ) query[0] ) ] = '\0';
 
-		find_maximal_exact_matches( q_gram_size , ref[0], rc_seq , q_grams, ref_filename, query_filename );
+		find_maximal_exact_matches( q_gram_size , ref[0], rc_seq , q_grams  );
 		find_maximal_inexact_matches( sw , ref[0], rc_seq, q_grams, mims );
 
 		free( rc_seq );
@@ -379,7 +427,7 @@ int main(int argc, char **argv)
 	}
 	else 
 	{
-		find_maximal_exact_matches( q_gram_size , ref[0], query[0] , q_grams,  ref_filename, query_filename );
+		find_maximal_exact_matches( q_gram_size , ref[0], query[0] , q_grams );
 
 		find_maximal_inexact_matches( sw , ref[0], query[0], q_grams, mims );
 	}
@@ -398,9 +446,9 @@ int main(int argc, char **argv)
 	{
 		for ( int i = 0; i < mims->size(); i++ )
 		{
-			if ( mims->at(i).endQuery - mims->at(i).startQuery >= sw . l || mims->at(i).endRef - mims->at(i).startRef >= sw . l )
+			if ( mims->at(i).endQuery+sw.n - mims->at(i).startQuery+sw. n >= sw . l || mims->at(i).endRef+sw.z - mims->at(i).startRef+sw.z >= sw . l )
 			{
-				fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", mims->at(i).startRef, " ", mims->at(i).endRef, " ", mims->at(i).startQuery, " ", mims->at(i).endQuery," ",  mims->at(i).error );
+				fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", mims->at(i).startRef+ sw.z, " ", mims->at(i).endRef + sw.z, " ", mims->at(i).startQuery+sw.n, " ", mims->at(i).endQuery+sw.n," ",  mims->at(i).error );
 			}		
 		}
 
@@ -414,7 +462,7 @@ int main(int argc, char **argv)
 
 		for(int i=0; i<mims->size(); i++ )
 		{
-			if ( mims->at(i).endQuery - mims->at(i).startQuery >= sw . l && mims->at(i).endRef - mims->at(i).startRef >= sw . l )
+			if ( mims->at(i).endQuery+sw.n - mims->at(i).startQuery+sw.n >= sw . l && mims->at(i).endRef+sw.z - mims->at(i).startRef+sw.z >= sw . l )
 			{	
 				mims_del->push_back( mims->at(i) );
 			}
@@ -431,7 +479,7 @@ int main(int argc, char **argv)
 			{
 				for(int j=0; j< lims->at(i)->size(); j++ )
 				{ 
-					fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", lims->at(i)->at(j).startRef, " ", lims->at(i)->at(j).endRef, " ", lims->at(i)->at(j).startQuery, " ", lims->at(i)->at(j).endQuery," ",  lims->at(i)->at(j).error );
+					fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", lims->at(i)->at(j).startRef+sw.z, " ", lims->at(i)->at(j).endRef+sw.z, " ", lims->at(i)->at(j).startQuery+sw.n, " ", lims->at(i)->at(j).endQuery+sw.n," ",  lims->at(i)->at(j).error );
 				}
 			fprintf(out_fd, "\n");
 			}	
@@ -451,7 +499,7 @@ int main(int argc, char **argv)
 
 	double end = gettime();
 
-        fprintf( stderr, "Elapsed time for processing %d sequence(s): %lf secs.\n", num_seqs, ( end - start ) );
+        fprintf( stderr, "Elapsed time: %lf secs.\n", end - start );
 	
 	/* Deallocate */
 	

@@ -18,7 +18,12 @@ x and y.
   -M, --longest-inc-matches    <int>      Choose 1 to return all longest increasing maximal inexact matches
                                           or 0 to return all maximal inexact matches. Default: 0.
   -c, --min-cluster-size       <int>      Minimum number of MIM in each cluster when M=1. Default: 5.
-  -v, --rev-compliment         <int>      Choose 1 to compute reverse compliment matches or 0 otherwise. Default: 0.
+  -v, --rev-compliment         <int>      Choose 1 to compute reverse compliment matches or 0 otherwise. 
+					  Default: 0.
+  -z, --ref_start_pos          <int>      Starting position of reference to search. Default: 0.
+  -x, --ref_end_pos            <int>      Ending position of reference to search. Default: ref length.
+  -n, --query_start_pos        <int>      Starting position of query to search. Default: 0.
+  -m, --query_end_pos          <int>      Ending position of query to search. Default: query length.
  Number of threads: 
   -T, --threads                <int>      Number of threads to use. Default: 1.
 ```
