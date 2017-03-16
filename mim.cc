@@ -382,8 +382,8 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		memcpy( &ref[0][0], &ref[0][sw.z], strlen( (char*) ref[0] ) - sw . x );
-		ref[0][strlen( (char*) ref[0] ) - sw . x] = '\0'; 
+		memcpy( &ref[0][0], &ref[0][sw.z], strlen( (char*) ref[0] ) - sw . z );
+		ref[0][strlen( (char*) ref[0] ) - sw . z] = '\0'; 
 
 	}
 	if( sw . m != - 1 )
@@ -393,8 +393,8 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		memcpy( &query[0][0], &query[0][sw . n], strlen( (char*) query[0] ) -  sw . m );
-		query[0][strlen( (char*) query[0] )  - sw.m] = '\0';
+		memcpy( &query[0][0], &query[0][sw . n], strlen( (char*) query[0] ) -  sw . n );
+		query[0][strlen( (char*) query[0] )  - sw.n] = '\0';
 
 	}
 
