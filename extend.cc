@@ -26,9 +26,6 @@
 #include <sys/time.h>
 #include <omp.h>
 #include <seqan/sequence.h>
-#include <seqan/file.h>
-#include <seqan/score.h>
-#include <seqan/seeds.h>
 #include <seqan/index.h>
 #include <seqan/align.h>
 #include "mim.h"
