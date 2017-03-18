@@ -446,7 +446,7 @@ int main(int argc, char **argv)
 	{
 		for ( int i = 0; i < mims->size(); i++ )
 		{
-			if ( mims->at(i).endQuery+sw.n - mims->at(i).startQuery+sw. n >= sw . l || mims->at(i).endRef+sw.z - mims->at(i).startRef+sw.z >= sw . l )
+			if ( (mims->at(i).endQuery+sw.n) - (mims->at(i).startQuery+sw. n) >= sw . l || (mims->at(i).endRef+sw.z) - (mims->at(i).startRef+sw.z) >= sw . l )
 			{
 				fprintf( out_fd, "%i%s%i%s%i%s%i%s%i\n", mims->at(i).startRef+ sw.z, " ", mims->at(i).endRef + sw.z, " ", mims->at(i).startQuery+sw.n, " ", mims->at(i).endQuery+sw.n," ",  mims->at(i).error );
 			}		
@@ -462,7 +462,7 @@ int main(int argc, char **argv)
 
 		for(int i=0; i<mims->size(); i++ )
 		{
-			if ( mims->at(i).endQuery+sw.n - mims->at(i).startQuery+sw.n >= sw . l && mims->at(i).endRef+sw.z - mims->at(i).startRef+sw.z >= sw . l )
+			if ( (mims->at(i).endQuery+sw.n) - (mims->at(i).startQuery+sw.n) >= sw . l && (mims->at(i).endRef+sw.z) - (mims->at(i).startRef+sw.z) >= sw . l )
 			{	
 				mims_del->push_back( mims->at(i) );
 			}
