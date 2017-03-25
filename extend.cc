@@ -552,10 +552,8 @@ int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 return 0;
 }
 
-
 int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw )
 {
-
 	int rS = *r_start;
 	int qS = *q_start;
 	int rE = *r_end;
@@ -600,8 +598,153 @@ int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 
 		free( A2 );
 		free( B2 );
-	}
 
+	}
+	
+	/* can still extend if distance = sw . k */
+	while( *edit_distance <= sw . k )
+	{
+		/* extending right again */
+
+		int editDist_Sr;
+		int editDist_Ir;
+		int editDist_Dr;
+		unsigned char * m_ref_R = ( unsigned char * ) calloc (  rE - rS + 2, sizeof ( unsigned char ) );
+		unsigned char * m_query_R = ( unsigned char * ) calloc ( qE - qS + 2, sizeof ( unsigned char ) );
+
+		if( qE <  strlen( ( char* ) yInput ) && rE < strlen( ( char* ) xInput ) )
+		{ 
+			memcpy( &m_ref_R[0], &xInput[rS],  rE - rS + 1  );
+			memcpy( &m_query_R[0], &yInput[qS],  qE - qS + 1  );
+			m_ref_R[ rE - rS + 1 ] = '\0';
+			m_query_R[ qE - qS + 1 ] = '\0';
+
+			editDist_Sr = editDistanceMyers( m_ref_R, m_query_R );
+		}
+		else editDist_Sr = sw . k + 2;
+
+		if( qE <  strlen( ( char* ) yInput ) )
+		{
+			memcpy( &m_ref_R[0], &xInput[rS],  rE - rS   );
+			memcpy( &m_query_R[0], &yInput[qS],  qE - qS + 1  );
+			m_ref_R[ rE - rS ] = '\0';
+			m_query_R[ qE - qS + 1 ] = '\0';
+
+			editDist_Ir = editDistanceMyers( m_ref_R, m_query_R );
+		}
+		else editDist_Ir = sw . k + 2;
+
+		if( rE <  strlen( ( char* ) yInput ) )
+		{
+			memcpy( &m_ref_R[0], &xInput[rS],  rE - rS  + 1 );
+			memcpy( &m_query_R[0], &yInput[qS],  qE - qS );
+			m_ref_R[ rE - rS  + 1] = '\0';
+			m_query_R[ qE - qS ] = '\0';
+
+			editDist_Dr = editDistanceMyers( m_ref_R, m_query_R );
+		}
+		else editDist_Dr = sw . k + 2;
+
+		free(m_ref_R);
+		free(m_query_R);
+
+
+		/* extending left again */
+		
+		int editDist_Sl;
+		int editDist_Il;
+		int editDist_Dl;
+
+		unsigned char * m_ref_L = ( unsigned char * ) calloc (  rE - rS + 2, sizeof ( unsigned char ) );
+		unsigned char *	m_query_L = ( unsigned char * ) calloc ( qE - qS + 2, sizeof ( unsigned char ) );;
+
+		if( qS > 0 && rS > 0 )
+		{
+	
+			memcpy( &m_ref_L[0], &xInput [ rS - 1  ], rE - rS + 1 );
+			memcpy( &m_query_L[0], &yInput[ qS - 1 ], qE - qS + 1 );
+			m_ref_L[ rE - rS + 1 ] = '\0';
+			m_query_L[ qE - qS + 1] = '\0';
+
+			editDist_Sl = editDistanceMyers( m_ref_L, m_query_L );
+
+		}	
+		else editDist_Sl = sw . k + 2;
+
+		if( qS > 0 )
+		{
+			memcpy( &m_ref_L[0], &xInput [rS ], rE - rS );
+			memcpy( &m_query_L[0], &yInput [ qS - 1 ], qE - qS + 1  );
+			m_ref_L[ rE - rS  ] = '\0';
+			m_query_L[ qE - qS + 1 ] = '\0';
+
+			editDist_Il = editDistanceMyers( m_ref_L, m_query_L );
+		}
+		else editDist_Il = sw . k + 2;
+		
+		if( rS > 0 )
+		{
+			memcpy( &m_ref_L[0], &xInput [rS - 1], rE - rS + 1 );
+			memcpy( &m_query_L[0], &yInput [ qS ], qE - qS   );
+			m_ref_L[ rE - rS + 1  ] = '\0';
+			m_query_L[ qE - qS ] = '\0';
+
+			editDist_Dl = editDistanceMyers( m_ref_L, m_query_L );
+		}
+		else editDist_Dl = sw . k + 2;
+
+		free(m_ref_L);
+		free(m_query_L);
+
+		int left1 = min( editDist_Sl, min( editDist_Il, editDist_Dl ) );
+		int right1 = min( editDist_Sr, min( editDist_Ir, editDist_Dr ) );
+		int minDist =  min( left1, right1 );
+		
+		if( minDist == editDist_Sr )
+		{
+			rE = rE + 1;
+			qE = qE + 1;
+		}
+		else if( minDist == editDist_Ir )
+		{
+			rE = rE;
+			qE = qE + 1;
+		}
+		else if( minDist == editDist_Dr )
+		{
+			rE = rE + 1;
+			qE = qE;
+		}
+		else if( minDist == editDist_Sl )
+		{
+			rS = rS - 1;
+			qS = qS - 1;	
+
+		}
+		else if( minDist == editDist_Il )
+		{
+			rS = rS;
+			qS = qS - 1;
+
+		}
+		else if( minDist == editDist_Dl )
+		{
+			rS = rS - 1;
+			qS = qS;
+		}
+
+
+		if( minDist <= sw . k )
+		{
+			*edit_distance = minDist;
+			*q_start = qS;
+			*q_end = qE;
+			*r_start = rS;
+			*r_end = rE;
+		}
+		else break;
+	}
+	
 return 0;
 }
 
