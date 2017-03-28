@@ -43,7 +43,7 @@ int main(int argc, char **argv)
         unsigned char ** seq_id_ref = NULL;     	// the sequences id in memory
 	unsigned char ** seq_id_query = NULL;     	// the sequences id in memory
 
-	char *          alphabet;              		// the alphabet
+	//char *          alphabet;              		// the alphabet
 	unsigned int    i, j;
 	unsigned int    q, l;
 	unsigned int    total_length = 0;
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         else
         {
 
-                if      ( ! strcmp ( "DNA", sw . alphabet ) )   { alphabet = ( char * ) DNA;  sw . matrix = 0; }
+		/*if      ( ! strcmp ( "DNA", sw . alphabet ) )   { alphabet = ( char * ) DNA;  sw . matrix = 0; }
                 else if ( ! strcmp ( "PROT", sw . alphabet ) )  { alphabet = ( char * ) PROT; sw . matrix = 1; }
                 else
                 {
@@ -75,8 +75,14 @@ int main(int argc, char **argv)
 			
                         fprintf ( stderr, " Error: Can only work out reverse compliment matches for DNA alphabet!\n" );
                         return ( 1 );
-                }
+                }*/
 
+		if( sw . a != 0 && sw . a != 1 )
+		{
+			fprintf ( stderr, " Error: Value for returning all maximal inexact matches is incorrect.\n" );
+			return ( 1 );	
+		}
+			
 		if ( sw . k >= sw . l )
 		{
 			fprintf ( stderr, " Error: The number of errors must be smaller than the length of the match.\n" );
@@ -191,15 +197,15 @@ int main(int argc, char **argv)
 				max_alloc_seq_len += ALLOC_SIZE;
 			}
 
-			if( strchr ( alphabet, c ) )
-			{
+			//if( strchr ( alphabet, c ) )
+			//{
 				ref[ num_seqs ][ seq_len++ ] = c;
-			}
+			/*}
 			else
 			{
 				fprintf ( stderr, " Error: input file %s contains an unexpected character %c!\n", ref_filename, c );
 				return ( 1 );
-			}
+			}*/
 
 		}
 
@@ -309,15 +315,15 @@ int main(int argc, char **argv)
 				max_alloc_seq_len_q += ALLOC_SIZE;
 			}
 
-			if( strchr ( alphabet, cq ) )
-			{
+			//if( strchr ( alphabet, cq ) )
+			//{
 				query[ num_seqs_q ][ seq_len_q++ ] = cq;
-			}
+			/*}
 			else
 			{
 				fprintf ( stderr, " Error: input file %s contains an unexpected character %c!\n", query_filename, cq );
 				return ( 1 );
-			}
+			}*/
 
 		}
 
@@ -419,7 +425,10 @@ int main(int argc, char **argv)
 		rc_seq[  strlen( ( char* ) query[0] ) ] = '\0';
 
 		find_maximal_exact_matches( q_gram_size , ref[0], rc_seq , q_grams  );
-		find_maximal_inexact_matches( sw , ref[0], rc_seq, q_grams, mims );
+
+		if( sw . a == 1 )
+			find_all_maximal_inexact_matches( sw , ref[0], rc_seq, q_grams, mims );
+		else find_maximal_inexact_matches( sw , ref[0], rc_seq, q_grams, mims );
 
 		free( rc_seq );
 
@@ -429,7 +438,9 @@ int main(int argc, char **argv)
 	{
 		find_maximal_exact_matches( q_gram_size , ref[0], query[0] , q_grams );
 
-		find_maximal_inexact_matches( sw , ref[0], query[0], q_grams, mims );
+		if( sw . a == 1 )
+			find_all_maximal_inexact_matches( sw , ref[0], query[0], q_grams, mims );
+		else find_maximal_inexact_matches( sw , ref[0], query[0], q_grams, mims );
 	}
 
 	delete( q_grams );
@@ -520,7 +531,7 @@ int main(int argc, char **argv)
         free ( sw . ref_filename );
 	free ( sw . query_filename );
         free ( sw . output_filename );
-        free ( sw . alphabet );
+       // free ( sw . alphabet );
 	
 return 1;
 }

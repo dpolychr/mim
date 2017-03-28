@@ -8,7 +8,6 @@ x and y.
 ```
  MIM <options>
  Standard (Mandatory):
-  -a, --alphabet               <str>      'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.
   -r, --input-file             <str>      FASTA reference filename.
   -q, --input-file             <str>      FASTA query filename.
   -o, --output-file            <str>      Output filename with maximal inexact matches.
@@ -24,6 +23,8 @@ x and y.
   -x, --ref_end_pos            <int>      Ending position of reference to search. Default: ref length.
   -n, --query_start_pos        <int>      Starting position of query to search. Default: 0.
   -m, --query_end_pos          <int>      Ending position of query to search. Default: query length.
+  -a, --all_mims               <int>      Choose 1 to return all maximal inexact matches or 0 to return
+                                          single maximal inexact matches. Default: 0.
  Number of threads: 
   -T, --threads                <int>      Number of threads to use. Default: 1.
 ```

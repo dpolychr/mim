@@ -43,12 +43,12 @@ using namespace std;
 
 struct TSwitch
  {
-   char               * alphabet;
+   //char               * alphabet;
    char               * ref_filename;
    char               * query_filename;
    char               * output_filename;
    unsigned int         matrix;
-   int 			T, M, z, x, n, m;
+   int 			T, M, z, x, n, m, a;
    unsigned int         l, k, c, v;
  };
 
@@ -68,6 +68,17 @@ struct MimOcc
    unsigned int  error;
  };
 
+struct PrevPos_L
+ {
+  unsigned int prev_L_ref;
+  unsigned int prev_L_query;
+ };
+
+struct PrevPos_R
+ {
+  unsigned int prev_R_ref;
+  unsigned int prev_R_query;
+ };
 
 typedef int32_t INT;
 
@@ -76,12 +87,16 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw );
 double gettime ( void );
 void usage ( void );
 int compute_qgrams( unsigned char * m_ref, unsigned char * m_query );
-int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw  );
+int adjust_all( unsigned char * xInput, unsigned char * yInput, TSwitch sw , vector<MimOcc> * mims );
 int find_maximal_exact_matches( unsigned int l, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams );
-int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mnms );
-int extend( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw );
+int find_all_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mnms );
+int extend_all( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw, vector<MimOcc> * mims);
 int editDistanceMyers( unsigned char * xInput, unsigned char * yInput );
 int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mims );
 int longest_increasing_matches( vector<vector< MimOcc > *> * lims, vector<MimOcc> * mims );
 unsigned int rev_compliment( unsigned char * str, unsigned char * str2, int iLen );
+int adjust2_all(unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw , vector<MimOcc> * mims );
+int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw  );
+int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mnms );
+int extend( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw );
 

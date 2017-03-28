@@ -29,7 +29,7 @@
 
 static struct option long_options[] =
  {
-   { "alphabet",                	required_argument, NULL, 'a' },
+  // { "alphabet",                	required_argument, NULL, 'a' },
    { "ref-file",              		required_argument, NULL, 'r' },
    { "query-file",              	required_argument, NULL, 'q' },
    { "output-file",             	required_argument, NULL, 'o' },
@@ -43,6 +43,7 @@ static struct option long_options[] =
    { "ref_end_pos",              	optional_argument, NULL, 'x' },
    { "query_start_pos",              	optional_argument, NULL, 'n' },
    { "query_end_pos",              	optional_argument, NULL, 'm' },
+   { "all-mims",			optional_argument, NULL, 'a' },
    { "help",                    	no_argument,       NULL, 'h' },
    { NULL,                      	0,                 NULL,  0  }
  };
@@ -60,7 +61,7 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
    int          args;
 
    /* initialisation */
-   sw -> alphabet                       = NULL;
+   //sw -> alphabet                       = NULL;
    sw -> query_filename                 = NULL;
    sw -> ref_filename                   = NULL;
    sw -> output_filename                = NULL;
@@ -74,6 +75,7 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
    sw -> x				= -1;
    sw -> n				= 0;
    sw -> m                              = -1;
+   sw -> a				= 0;
    args = 0;
 
    while ( ( opt = getopt_long ( argc, argv, "a:i:o:l:k:T:r:q:v:M:c:z:x:n:m:h", long_options, &oi ) ) != -1 ) 
@@ -81,11 +83,11 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
 
       switch ( opt )
        {
-         case 'a':
-           sw -> alphabet = ( char * ) malloc ( ( strlen ( optarg ) + 1 ) * sizeof ( char ) );
-           strcpy ( sw -> alphabet, optarg );
-           args ++;
-           break;
+         //case 'a':
+         //  sw -> alphabet = ( char * ) malloc ( ( strlen ( optarg ) + 1 ) * sizeof ( char ) );
+         // strcpy ( sw -> alphabet, optarg );
+         //  args ++;
+         //  break;
 
          case 'q':
            sw -> query_filename = ( char * ) malloc ( ( strlen ( optarg ) + 1 ) * sizeof ( char ) );
@@ -195,6 +197,16 @@ int decode_switches ( int argc, char * argv [], struct TSwitch * sw )
            sw -> m = val;
            break;
 
+	case 'a':
+           val = strtod ( optarg, &ep );
+           if ( optarg == ep )
+            {
+              return ( 0 );
+            }
+           sw -> a = val;
+           break;
+
+
          case 'h':
            return ( 0 );
        }
@@ -216,7 +228,7 @@ void usage ( void )
  {
    fprintf ( stdout, " Usage: MIM <options>\n" );
    fprintf ( stdout, " Standard (Mandatory):\n" );
-   fprintf ( stdout, "  -a, --alphabet                 <str>		'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
+   //fprintf ( stdout, "  -a, --alphabet                 <str>		'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
    fprintf ( stdout, "  -r, --input-file               <str>		FASTA reference filename.\n" );
    fprintf ( stdout, "  -q, --input-file               <str>		FASTA query filename.\n" );
    fprintf ( stdout, "  -o, --output-file              <str>		Output filename with maximal inexact matches.\n" );    
@@ -232,6 +244,8 @@ void usage ( void )
    fprintf ( stdout, "  -x, --ref_end_pos              <int>		Ending position of reference to search. Default: ref length.\n");
    fprintf ( stdout, "  -n, --query_start_pos          <int>		Starting position of query to search. Default: 0.\n");
    fprintf ( stdout, "  -m, --query_end_pos            <int>		Ending position of query to search. Default: query length.\n");
+   fprintf ( stdout, "  -a, --all_mims                 <int>		Choose 1 to return all maximal inexact matches or 0 to return\n");
+   fprintf ( stdout, "                                                single maximal inexact matches. Default: 0.\n");
    fprintf ( stdout, " Number of threads:\n" ); 
    fprintf ( stdout, "  -T, --threads                  <int>		Number of threads to use. Default: 1. \n" );
  }
