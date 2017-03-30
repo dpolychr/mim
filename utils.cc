@@ -229,8 +229,8 @@ void usage ( void )
    fprintf ( stdout, " Usage: MIM <options>\n" );
    fprintf ( stdout, " Standard (Mandatory):\n" );
    //fprintf ( stdout, "  -a, --alphabet                 <str>		'DNA' for nucleotide  sequences  or 'PROT' for protein  sequences.\n" );
-   fprintf ( stdout, "  -r, --input-file               <str>		FASTA reference filename.\n" );
-   fprintf ( stdout, "  -q, --input-file               <str>		FASTA query filename.\n" );
+   fprintf ( stdout, "  -r, --ref-file               <str>		FASTA reference filename.\n" );
+   fprintf ( stdout, "  -q, --query-file               <str>		FASTA query filename.\n" );
    fprintf ( stdout, "  -o, --output-file              <str>		Output filename with maximal inexact matches.\n" );    
    fprintf ( stdout, "  -l, --min-seq-length           <int>		Minimum length of match.\n" );   
    fprintf ( stdout, "  -k, --max-error-size           <int>		Maximum error size between matches.\n" );
