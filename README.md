@@ -8,7 +8,7 @@ x and y.
 ```
  MIM <options>
  Standard (Mandatory):
-  -r, --ref-file             <str>      FASTA reference filename.
+  -r, --ref-file               <str>      FASTA reference filename.
   -q, --query-file             <str>      FASTA query filename.
   -o, --output-file            <str>      Output filename with maximal inexact matches.
   -l, --min-seq-length         <int>      Minimum length of match.
