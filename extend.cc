@@ -35,20 +35,28 @@ using namespace seqan;
 
 bool order(MimOcc a, MimOcc b) 
 { 
-	if( a.startRef == b.startRef)
+	if( a.startRef == b.startRef && a.endRef == b.endRef && a.startQuery == b.startQuery )
+	{
+		return( a.endQuery < b.endQuery );
+	}
+	else if( a.startRef == b.startRef && a.endRef == b.endRef )
 	{
 		return( a.startQuery < b.startQuery );
 	}
-	else return (a.startRef < b.startRef ); 
+	else if( a.startRef == b.startRef )
+	{
+		 return ( a.endRef < b.endRef ); 
+	}
+	else return ( a.startRef < b.startRef );
 }
 
 bool uniqueEnt(MimOcc a, MimOcc b) 
 {
 	if( a.startRef == b.startRef && a.endRef == b.endRef && a.startQuery == b.startQuery && a.endQuery == b.endQuery )
 	{
-  		return ( true );
+  		return true;
 	}
-	else return ( false );
+	else return false;
 }
 
 int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mims )
@@ -66,16 +74,19 @@ int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char
 		}
 	}
 
+	
+
 	fprintf ( stderr, " -Adjusting extended matches\n" );
 	for( int j=0; j<mims->size(); j++ )
 	{
+		cout<<j <<" of "<<mims->size()<<endl;
 		adjust(  &mims->at(j).error, (int*) &mims->at(j).startQuery, (int*) &mims->at(j).endQuery, (int*) &mims->at(j).startRef, (int*) &mims->at(j).endRef, ref, query, sw );
 
 	}
 
-	sort( mims->begin(), mims->end(), order );
+	 sort( mims->begin(), mims->end(), order );
 
-	unique( mims->begin(), mims->end(), uniqueEnt ); 
+	 mims->erase( unique( mims->begin(), mims->end(), uniqueEnt ), mims->end() );
 
 return 0;
 }
@@ -831,4 +842,3 @@ int editDistanceMyers( unsigned char * xInput, unsigned char * yInput )
 
 	return score;
 }
-
