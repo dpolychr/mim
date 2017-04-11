@@ -79,7 +79,6 @@ int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char
 	fprintf ( stderr, " -Adjusting extended matches\n" );
 	for( int j=0; j<mims->size(); j++ )
 	{
-		cout<<j <<" of "<<mims->size()<<endl;
 		adjust(  &mims->at(j).error, (int*) &mims->at(j).startQuery, (int*) &mims->at(j).endQuery, (int*) &mims->at(j).startRef, (int*) &mims->at(j).endRef, ref, query, sw );
 
 	}
