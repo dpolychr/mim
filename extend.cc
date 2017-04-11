@@ -644,7 +644,7 @@ int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 		}
 		else editDist_Ir = sw . k + 2;
 
-		if( rE <  strlen( ( char* ) yInput ) )
+		if( rE <  strlen( ( char* ) xInput ) )
 		{
 			memcpy( &m_ref_R[0], &xInput[rS],  rE - rS  + 1 );
 			memcpy( &m_query_R[0], &yInput[qS],  qE - qS );
