@@ -473,7 +473,7 @@ int main(int argc, char **argv)
 
 		for(int i=0; i<mims->size(); i++ )
 		{
-			if ( (mims->at(i).endQuery+sw.n) - (mims->at(i).startQuery+sw.n) >= sw . l && (mims->at(i).endRef+sw.z) - (mims->at(i).startRef+sw.z) >= sw . l )
+			if ( (mims->at(i).endQuery+sw.n) - (mims->at(i).startQuery+sw.n) >= sw . l || (mims->at(i).endRef+sw.z) - (mims->at(i).startRef+sw.z) >= sw . l )
 			{	
 				mims_del->push_back( mims->at(i) );
 			}
