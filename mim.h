@@ -99,4 +99,4 @@ int adjust2_all(unsigned int * edit_distance, int * q_start,  int * q_end, int *
 int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw  );
 int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramOcc> * q_grams, vector<MimOcc> * mnms );
 int extend( unsigned int * edit_distance,  int * q_start, int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw );
-
+int qGramDistance( unsigned char * m_ref, unsigned char * m_query );
