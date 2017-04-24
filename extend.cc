@@ -1,6 +1,6 @@
 /**
     MIM
-    Copyright (C) 2017 Lorraine A. K. Ayad, Chang Liu and Solon P. Pissis
+    Copyright (C) 2017 Lorraine A. K. Ayad and Solon P. Pissis
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -194,6 +194,7 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw )
 {
 
+	
 	int toAddStartQuery = 1;
 	int toAddEndQuery = 1;
 	int toAddStartRef = 1;
@@ -230,6 +231,7 @@ int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 
 	while( q_start_temp >= 0 || r_start_temp >= 0 || q_end_temp <=  strlen( ( char* ) yInput ) -1 || r_end_temp <=  strlen( ( char* ) xInput ) )
 	{
+
 		/************************************************ Score for extending right ***************************************************/
 		int edit_distance_R;
 
@@ -333,7 +335,7 @@ int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 			free( m_query_R );
 
 		}
-		else if( qE == strlen( ( char* ) yInput ) && rE != strlen( ( char* ) xInput ) )
+		else if( qE == strlen( ( char* ) yInput ) && rE != strlen( ( char* ) xInput ) && r_end_temp < strlen( ( char* ) xInput )  )
 		{
 			edit_distance_R = edit_distance_total_R + 1;
 			operationEnd = 'D';
@@ -341,7 +343,7 @@ int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 			rec = xInput[ r_start_temp + 1];
 			qec = yInput[0];
 		}
-		else if( rE == strlen( ( char* ) xInput ) && qE != strlen( ( char* ) yInput ) )
+		else if( rE == strlen( ( char* ) xInput ) && qE != strlen( ( char* ) yInput ) && q_end_temp < strlen( ( char* ) yInput ) )
 		{
 			edit_distance_R = edit_distance_total_R + 1;
 			operationEnd = 'I';
@@ -496,7 +498,7 @@ int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 			free( m_query_L );
 
 		}
-		else if( qS == 0 && rS != 0 )
+		else if( qS == 0 && rS != 0 && r_start_temp > 0 )
 		{
 			edit_distance_L = edit_distance_total_L + 1;
 			operationStart = 'D';
@@ -504,7 +506,7 @@ int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 			rsc = xInput[ r_start_temp - 1 ];
 			qsc = yInput[0];
 		}
-		else if( rS == 0 && qS != 0 )
+		else if( rS == 0 && qS != 0 && q_start_temp > 0 )
 		{
 			edit_distance_L = edit_distance_total_L + 1;
 			operationStart = 'I';
