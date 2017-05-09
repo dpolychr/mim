@@ -369,6 +369,12 @@ int main(int argc, char **argv)
 		return ( 1 );
 	}
 
+	if( sw . l < 50 )		
+	{
+		fprintf ( stderr, " Error: The minimum length of a match is 50.\n" );
+		return ( 1 );	
+	}
+
 	if( sw . k < 0 )
 	{
 		fprintf( stderr, " Error: The error size cannot be negative!\n");

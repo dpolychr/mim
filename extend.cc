@@ -83,9 +83,47 @@ int find_maximal_inexact_matches( TSwitch sw, unsigned char * ref, unsigned char
 
 	}
 
-	 sort( mims->begin(), mims->end(), order );
+	sort( mims->begin(), mims->end(), order );
 
-	 mims->erase( unique( mims->begin(), mims->end(), uniqueEnt ), mims->end() );
+	/* Remove overlapping MIMS */
+	vector<MimOcc> * temp = new vector<MimOcc>;
+
+	temp->push_back(mims->at(0));
+	int i = 1;
+	while( i < mims->size()  )
+	{
+
+		if(  ( mims->at(i).endQuery+sw.n) - (mims->at(i).startQuery+sw.n) < sw . l && (mims->at(i).endRef+sw.z) - (mims->at(i).startRef+sw.z) < sw . l )
+		{
+			i++;
+		}
+		else if(  mims->at(i).startRef >=  temp->at( temp->size() -1 ).startRef &&  mims->at(i).endRef <=  temp->at( temp->size() -1 ).endRef &&  mims->at(i).startQuery >=  temp->at( temp->size() -1 ).startQuery &&  mims->at(i).endQuery <=  temp->at( temp->size() -1 ).endQuery )
+		{
+			i++;
+		}
+		else
+		{
+			if( temp->at( temp->size() -1).startRef >=  mims->at(i).startRef &&  temp->at( temp->size() -1).endRef <=  mims->at(i).endRef &&  temp->at( temp->size() -1).startQuery >=  mims->at(i).startQuery &&  temp->at( temp->size() -1).endQuery <=  mims->at(i).endQuery )	
+			{
+				temp->erase( temp->begin() + temp->size() -1 );
+				temp->push_back( mims->at(i) );
+				i++;
+			}
+			else
+			{
+				temp->push_back( mims->at(i) );
+				i++;
+			}
+		}
+	}
+
+	mims->clear();
+
+	for(int i=0; i<temp->size(); i++)
+		mims->push_back(temp->at(i));
+
+	delete( temp );
+
 
 return 0;
 }
@@ -193,8 +231,6 @@ int merge( TSwitch sw, unsigned char * ref, unsigned char * query, vector<QGramO
 
 int extend( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_start, int * r_end, unsigned char * xInput, unsigned char * yInput, TSwitch sw )
 {
-
-	
 	int toAddStartQuery = 1;
 	int toAddEndQuery = 1;
 	int toAddStartRef = 1;
@@ -756,7 +792,6 @@ int adjust( unsigned int * edit_distance, int * q_start,  int * q_end, int * r_s
 		free( B2 );
 
 	}
-	
 
 	while( rSb != *r_start || rEb != *r_end || qSb != *q_start || qEb != *q_end )
 	{
